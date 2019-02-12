@@ -3,7 +3,10 @@ from mpl_toolkits.mplot3d import Axes3D  # 绘制3D坐标的函数
 import numpy as np
 
 if __name__ == '__main__':
-    # a = np.array([[0, 0]]);
+    a = np.array([[0, 0],[2,1]]);
+    a = a+1
+    print(a)
+    # print(e,ee)
     # b = np.array([[3, 0]]);
     # c = np.array([[3, 5]]);
     # ss = 0.5 * np.linalg.norm(np.cross((b - a), (c - a)), ord=1)
@@ -37,6 +40,6 @@ if __name__ == '__main__':
             model_path = file_dir+"\\"+dirs[i]+"\\"+dirs[i]+".off"
             print(model_path)
         # print(dirs[0])
-    if __name__ == '__main__':
-        dir = "C:\\Users\97933\Downloads\psb_v1\\benchmark\db\\0"
-        file_name(dir)
+    # if __name__ == '__main__':
+        # dir = "C:\\Users\97933\Downloads\psb_v1\\benchmark\db\\0"
+        # file_name(dir)
