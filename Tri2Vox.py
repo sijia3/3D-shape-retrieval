@@ -4,7 +4,7 @@ import numpy as np
 import os
 from matplotlib import cm
 import ReadOff
-
+import PlotVoxel
 #  表体素化
 def Tri2Vox(modelPoint, modelPlane, voxSize):
     # 像素点初始化
@@ -57,11 +57,12 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
     # vox = np.array(layoutVox).reshape(len(layoutVox)/3, 3)
     # vox = np.ceil(vox)
     vox = np.unique(layoutVox, axis=0)
-
+    vox = np.delete(vox, 0, 0)
     return vox
 
 
 if __name__ == '__main__':
     file_dir = "m0.off"
     verts, faces = ReadOff.readOff(file_dir)
-    Tri2Vox(verts, faces, 64)
+    vox = Tri2Vox(verts, faces, 64)
+    PlotVoxel.plotVoxel(vox, 64)
