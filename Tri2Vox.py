@@ -16,8 +16,8 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
 
     # 遍历面片
     segEle = 0.9
-    # layoutVox = np.array([0,0,0])       # 初始化
-    layoutVox = []
+    layoutVox = np.array([0,0,0])       # 初始化
+    # layoutVox = []
     for i in range(0, numPlane):
         id = modelPlane[i,:]
         points = modelPoint[id,:]     # 一个面片的三个点坐标
@@ -34,35 +34,34 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
         lmax = np.max([lab, lbc, lca])  # 取最长边最为分段步长依据
         seg = np.floor(lmax/segEle)            # 分段数
         if seg == 0:                     # 如果分段数等于0，则不需要扫描该面片
-            # layoutVox = np.array([layoutVox, points])
-            layoutVox = layoutVox + points.tolist()
+            layoutVox = np.vstack((layoutVox, points))
+            # layoutVox = layoutVox + points.tolist()
             continue
-        stepV = np.array([AB,BC,CA])/seg      # 3*3矩阵，从三个方向出发
-        if lab != 0 and lbc!=0 and lca!=0:
-            vSet = points.tolist()
+        stepV = np.array([AB, BC, CA])/seg      # 3*3矩阵，从三个方向出发
+        if lab != 0 and lbc != 0 and lca != 0:
+            vSet = points
             temp = points      # 起点
-            for j in range(0, seg):
+            for j in range(0, int(seg)):
                 temp = temp + stepV
-                vSet = vSet + temp.tolist()    #边采样并入, list
+                vSet = np.vstack((vSet, temp))    # 边采样并入, list
                 innerV = temp[1, :]
-                innerSet = []
+                innerSet = np.array([0, 0, 0])
                 for k in range(0, j):
                     innerV = innerV + stepV[2, :]      # BC向量的方向延申
-                    innerSet = innerSet + innerV.tolist()
-                vSet = vSet + innerSet
-            # vSet = np.ceil(vSet)                        # 向上取整
-            # vSet = np.unique(vSet, axis=0)          # 去重
-            layoutVox = layoutVox + vSet
+                    innerSet = np.vstack((innerSet, innerV))
+                vSet = np.vstack((vSet, innerSet))
+            vSet = np.ceil(vSet)                        # 向上取整
+            vSet = np.unique(vSet, axis=0)          # 去重
+            layoutVox = np.vstack((layoutVox, vSet))
     # endfor
-
-    vox = np.array(layoutVox).reshape(len(layoutVox)/3, 3)
-    vox = np.ceil(vox)
-    vox = np.unique(vox, axis=0)
+    # vox = np.array(layoutVox).reshape(len(layoutVox)/3, 3)
+    # vox = np.ceil(vox)
+    vox = np.unique(layoutVox, axis=0)
 
     return vox
 
 
 if __name__ == '__main__':
-    file_dir = "m301.off"
+    file_dir = "m0.off"
     verts, faces = ReadOff.readOff(file_dir)
     Tri2Vox(verts, faces, 64)
