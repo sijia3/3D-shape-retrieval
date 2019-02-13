@@ -15,7 +15,7 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
 
 
     # 遍历面片
-    segEle = 0.9
+    segEle = 1.0
     layoutVox = np.array([0,0,0])       # 初始化
     # layoutVox = []
     for i in range(0, numPlane):
@@ -34,6 +34,7 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
         lmax = np.max([lab, lbc, lca])  # 取最长边最为分段步长依据
         seg = np.floor(lmax/segEle)            # 分段数
         if seg == 0:                     # 如果分段数等于0，则不需要扫描该面片
+            points = np.ceil(points)
             layoutVox = np.vstack((layoutVox, points))
             # layoutVox = layoutVox + points.tolist()
             continue
@@ -64,5 +65,6 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
 if __name__ == '__main__':
     file_dir = "m0.off"
     verts, faces = ReadOff.readOff(file_dir)
-    vox = Tri2Vox(verts, faces, 64)
-    PlotVoxel.plotVoxel(vox, 64)
+    vox = Tri2Vox(verts, faces, 32)
+    PlotVoxel.plot2DVoxel(vox)
+
