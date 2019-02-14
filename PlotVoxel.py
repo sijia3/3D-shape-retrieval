@@ -68,12 +68,16 @@ if __name__ == '__main__':
     file_dir = "m0.off"
     verts, faces = ReadOff.readOff(file_dir)
     vox = Tri2Vox.Tri2Vox(verts, faces, 32)
-    pic = np.zeros((64,64))
-    voxL = vox[:,[1,2]]
-    # voxL = np.unique(voxL, axis=0)
-    for i in range(voxL.shape[0]):
-        x = int(voxL[i][0])
-        y = int(voxL[i][1])
-        pic[x][y] += 1.0;
+    pics = []
+    for j in range(3):
+        index = (j+1)%3
+        pic = np.zeros((64,64))
+        voxL = vox[:,[j,index]]
+        voxL = np.unique(voxL, axis=0)
+        for i in range(voxL.shape[0]):
+            x = int(voxL[i][0])
+            y = int(voxL[i][1])
+            pic[x][y] += 1.0;
+        pics.append(pic)
 
     # plot2DVoxel(vox, 64)
