@@ -7,12 +7,15 @@ import ReadOff
 import Tri2Vox
 
 def plotVoxel(vox, boxSize):
-# plot
+    # plot
     x = vox[:, 0]
     y = vox[:, 1]
     z = vox[:, 2]
     ax = plt.axes(projection='3d')
     ax.scatter3D(x, y, z, cmap='Greens')
+    ax.set_ylim(0, boxSize)
+    ax.set_xlim(0, boxSize)
+    # ax.set_Zlim(0, boxSize)
     plt.show()
     # (row, col) = vox.shape;
     # P = np.zeros((8, 3))
@@ -35,16 +38,16 @@ def plotVoxel(vox, boxSize):
     # return;
 
 
-def plot2DVoxel(vox, voxSize):
+def plot2DVoxel(vox, voxSize,name):
     # for i in range(0,3):
     #     index = i%2
     #     plt.scatter(vox[:, index], vox[:, index+1])
     #     plt.show()
+    voxSize = 100
     plt.subplot(2, 2, 1)
     plt.xlim(0, voxSize)
     plt.ylim(0, voxSize)
     plt.scatter(vox[:, 0], vox[:, 1])
-
 
     #
     plt.subplot(2, 2, 2)
@@ -66,7 +69,7 @@ if __name__ == '__main__':
     # vox = np.array([[1,1,1]])
     # plotVoxel(vox=vox, boxSize=64)
     #
-    file_dir = "m0.off"
+    file_dir = "bed_0043.off"
     verts, faces = ReadOff.readOff(file_dir)
     vox = Tri2Vox.Tri2Vox(verts, faces, 32)
     pics = []
@@ -81,5 +84,5 @@ if __name__ == '__main__':
             pic[x][y] += 1.0;
         pics.append(pic)
 
-
-    plot2DVoxel(vox, 64)
+    plotVoxel(vox, 64)
+    plot2DVoxel(vox, 64,file_dir)

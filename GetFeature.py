@@ -19,7 +19,7 @@ import ReadOff
 
 
 def getFeature():
-    file_dir = "C:\\Users\97933\Downloads\ModelNet10\ModelNet10\\alltest"
+    file_dir = "D:\\Downloads\ModelNet10\ModelNet10\\alltest"
     for root, dirs, files in os.walk(file_dir):
         # print(root)  # 当前目录路径
         print(files)  # 当前路径下所有子目录
@@ -29,8 +29,8 @@ def getFeature():
         file = file_dir + "\\" + files[i]
         verts, faces = ReadOff.readOff(file)
         vox = Tri2Vox.Tri2Vox(verts, faces, 32)
-        PlotVoxel.plot2DVoxel(vox, 64)
-        # PlotVoxel.plotVoxel(vox, 64)
+        PlotVoxel.plot2DVoxel(vox, 64,files[i])
+        PlotVoxel.plotVoxel(vox, 64)
         # PlotTri.plotTri(verts,faces)
         pics = getPics(vox)
         allPics.append(pics)
@@ -58,6 +58,7 @@ def getPics(vox):
     pics = np.array(pics)
     return pics
 
+
 def writeH5(filename, voxs, labels):
     # HDF5的写入：
     # (h, w) = voxs.shape
@@ -66,6 +67,7 @@ def writeH5(filename, voxs, labels):
     f['data'] = voxs                 # 将数据写入文件的主键data下面
     f['labels'] = range(len(labels))            # 将数据写入文件的主键labels下面
     f.close()
+
 
 if __name__ == '__main__':
     a = getFeature();

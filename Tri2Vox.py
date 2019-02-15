@@ -3,6 +3,8 @@ from mpl_toolkits.mplot3d import Axes3D  # 绘制3D坐标的函数
 import numpy as np
 import os
 from matplotlib import cm
+
+import PlotTri
 import ReadOff
 import PlotVoxel
 #  表体素化
@@ -63,8 +65,9 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
 
 
 if __name__ == '__main__':
-    file_dir = "chair_0027.off"
+    file_dir = "tri.off"
     verts, faces = ReadOff.readOff(file_dir)
     vox = Tri2Vox(verts, faces, 32)
-    # PlotVoxel.plot2DVoxel(vox,64)
+    PlotTri.plotTri(verts,faces)
+    PlotVoxel.plotVoxel(vox,64)
 

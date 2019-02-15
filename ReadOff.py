@@ -11,9 +11,28 @@ def readOff(file):
         verts = np.array([[float(s) for s in file.readline().strip().split(' ')] for i_vert in range(n_verts)])
         faces = np.array([[int(s) for s in file.readline().strip().split(' ')][1:] for i_face in range(n_faces)])
 
-        # 平移
-        verts_mean = np.mean(verts, axis=0)
-        new_verts = verts - verts_mean
+        # 平移 todo 重做（根据面片权值）
+        Area = 0
+        S = 0   # 加权面积
+        for i in range(faces.shape[0]):
+            pointId = faces[i,:]
+            dotA = verts[faces[i][0]].reshape(1, 3)
+            dotB = verts[faces[i][1]].reshape(1, 3)
+            dotC = verts[faces[i][2]].reshape(1, 3)
+            # 边长
+            AB = np.linalg.norm(dotB - dotA, axis=1, keepdims=True)
+            BC = np.linalg.norm(dotC - dotB, axis=1, keepdims=True)
+            AC = np.linalg.norm(dotC - dotA, axis=1, keepdims=True)
+            p = (AB + BC + AC) / 2
+            s = np.sqrt(p * (p - AB) * (p - AC) * (p - AC))  # 该面片的面积
+            # todo 计算面片质心
+            planeGri = np.mean(verts[pointId], axis=0)
+            S += s * planeGri;          # sum（gi * Si）
+            Area += s
+        p = S/Area
+        new_verts = verts-p
+        # verts_mean = np.mean(verts, axis=0)
+        # new_verts = verts - verts_mean
         # PTP = np.dot(new_verts.T, new_verts)
         # Area = 0
         # for i in range(faces.shape[0]):
@@ -44,16 +63,28 @@ def readOff(file):
         # P = P / s
         return new_verts, faces
 
+def mathArea(face):
+    dotA = verts[face[0]].reshape(1, 3)
+    dotB = verts[face[1]].reshape(1, 3)
+    dotC = verts[face[2]].reshape(1, 3)
+    # 边长
+    AB = np.linalg.norm(dotB - dotA, axis=1, keepdims=True)
+    BC = np.linalg.norm(dotC - dotB, axis=1, keepdims=True)
+    AC = np.linalg.norm(dotC - dotA, axis=1, keepdims=True)
+    p = (AB + BC + AC) / 2
+    s = np.sqrt(p * (p - AB) * (p - AC) * (p - AC))  # 该面片的面积
+    return s
+
 if __name__ == '__main__':
     # file_dir = "C:\\Users\97933\Downloads\psb_v1\\benchmark\db\\15"
-    file_dir = "C:\\Users\97933\Downloads\ModelNet10\ModelNet10\\alltest"
+    file_dir = "D:\\testmodels"
     for root, dirs, files in os.walk(file_dir):
         # print(root)  # 当前目录路径
         print(files)  # 当前路径下所有子目录
         break;
     for i in range(len(files)):
-        if i > 1:
-            break
+        # if i > 1:
+        #     break
         # model_path = file_dir + "\\" + dirs[i] + "\\" + dirs[i] + ".off"
         model_path = file_dir + "\\" + files[i]
         print(model_path)
