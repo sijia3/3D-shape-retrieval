@@ -51,7 +51,7 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
                     innerV = innerV + stepV[2, :]      # BC向量的方向延申
                     innerSet = np.vstack((innerSet, innerV))
                 vSet = np.vstack((vSet, innerSet))
-            vSet = np.ceil(vSet)                        # 向上取整
+            vSet = np.floor(vSet)                        # 向xia取整
             vSet = np.unique(vSet, axis=0)          # 去重
             layoutVox = np.vstack((layoutVox, vSet))
     # endfor
@@ -63,8 +63,8 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
 
 
 if __name__ == '__main__':
-    file_dir = "m0.off"
+    file_dir = "chair_0027.off"
     verts, faces = ReadOff.readOff(file_dir)
     vox = Tri2Vox(verts, faces, 32)
-    PlotVoxel.plot2DVoxel(vox)
+    # PlotVoxel.plot2DVoxel(vox,64)
 

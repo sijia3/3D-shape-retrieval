@@ -13,5 +13,5 @@ def plotTri(planes,faces):
     fig = plt.figure()
     ax = plt.axes(projection='3d')
     ax.plot_trisurf(x, y, z, triangles=faces, cmap=cm.coolwarm, linewidth=0.2)
-    # plt.show()
+    plt.show()
 

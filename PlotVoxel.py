@@ -5,6 +5,7 @@ import os
 from matplotlib import cm
 import ReadOff
 import Tri2Vox
+
 def plotVoxel(vox, boxSize):
 # plot
     x = vox[:, 0]
@@ -75,9 +76,10 @@ if __name__ == '__main__':
         voxL = vox[:,[j,index]]
         voxL = np.unique(voxL, axis=0)
         for i in range(voxL.shape[0]):
-            x = int(voxL[i][0])
-            y = int(voxL[i][1])
+            x = int(voxL[i][0])-1
+            y = int(voxL[i][1])-1
             pic[x][y] += 1.0;
         pics.append(pic)
 
-    # plot2DVoxel(vox, 64)
+
+    plot2DVoxel(vox, 64)
