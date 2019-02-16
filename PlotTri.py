@@ -7,22 +7,22 @@ from matplotlib import cm
 import ReadOff
 
 
-def plotTri(planes,faces):
+def plotTri(planes,faces, filename):
     # plot
-    # x = (planes[:, 0]+1)*32
-    # y = (planes[:, 1]+1)*32
-    # z = (planes[:, 2]+1)*32
-    x = planes[:, 0]
-    y = planes[:, 1]
-    z = planes[:, 2]
+    x = (planes[:, 0]+1)*32
+    y = (planes[:, 1]+1)*32
+    z = (planes[:, 2]+1)*32
+    # x = planes[:, 0]
+    # y = planes[:, 1]
+    # z = planes[:, 2]
     fig = plt.figure()
 
     ax = plt.axes(projection='3d')
     # plt.subplot(2, 2, 1)
-    # ax.set_ylim(0, 64)
-    # ax.set_xlim(0, 64)
+    ax.set_ylim(0, 64)
+    ax.set_xlim(0, 64)
     ax.plot_trisurf(x, y, z, triangles=faces, cmap=cm.coolwarm, linewidth=0.2)
-
+    ax.set_title(filename)
     plt.show()
 
 if __name__ == '__main__':
@@ -30,5 +30,5 @@ if __name__ == '__main__':
     # plotVoxel(vox=vox, boxSize=64)
     #
     file_dir = "./$RAXIQBV.off"
-    verts, faces = ReadOff.readOff(file_dir)
+    verts, faces = ReadOff.readOffWithoutPca(file_dir)
     plotTri(verts, faces)

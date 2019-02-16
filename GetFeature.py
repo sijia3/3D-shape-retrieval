@@ -18,8 +18,8 @@ import ReadOff
 
 
 
-def getFeature():
-    file_dir = "D:\\Downloads\ModelNet10\ModelNet10\\alltest"
+def getFeature(file_dir):
+    # file_dir = "D:\\Downloads\ModelNet10\ModelNet10\\alltest"
     for root, dirs, files in os.walk(file_dir):
         # print(root)  # 当前目录路径
         print(files)  # 当前路径下所有子目录
@@ -29,23 +29,25 @@ def getFeature():
         file = file_dir + "\\" + files[i]
         verts, faces = ReadOff.readOff(file)
         vox = Tri2Vox.Tri2Vox(verts, faces, 32)
-        PlotVoxel.plot2DVoxel(vox, 64,files[i])
-        PlotVoxel.plotVoxel(vox, 64)
+        # PlotVoxel.plot2DVoxel(vox, 64,files[i])
+        # PlotVoxel.plotVoxel(vox, 64)
         # PlotTri.plotTri(verts,faces)
-        pics = getPics(vox)
+        pics = getPics(vox, isInDepth=True)
+        PlotVoxel.plotHotPic(pics, 64, files[i])
         allPics.append(pics)
         print("已完成第"+str(i+1)+"个")
     allPics = np.array(allPics)
     return allPics
 
 
-def getPics(vox):
+def getPics(vox, isInDepth = False):
     pics = []
     for j in range(3):
         index = (j + 1) % 3
         pic = np.zeros((64, 64))
         voxL = vox[:, [j, index]]
-        voxL = np.unique(voxL, axis=0)
+        if not isInDepth:
+            voxL = np.unique(voxL, axis=0)
         for i in range(voxL.shape[0]):
             x = int(voxL[i][0])
             y = int(voxL[i][1])
@@ -70,4 +72,4 @@ def writeH5(filename, voxs, labels):
 
 
 if __name__ == '__main__':
-    a = getFeature();
+    a = getFeature("D:\\testmodels");

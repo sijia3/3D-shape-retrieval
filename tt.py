@@ -11,9 +11,9 @@ if __name__ == '__main__':
     # vox = np.array([[1,1,1]])
     # plotVoxel(vox=vox, boxSize=64)
     #
-    file_dir = "./model/bed_0043.off"
-    verts, faces = ReadOff.readOff(file_dir)
-    PlotTri.plotTri(verts, faces)
+    file_dir = "./m0.off"
+    verts, faces = ReadOff.readOffWithoutPca(file_dir)
+    PlotTri.plotTri(verts, faces, file_dir)
     # vox = Tri2Vox.Tri2Vox(verts, faces, 32)
     # pics = []
     # for j in range(3):

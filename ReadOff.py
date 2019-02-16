@@ -3,11 +3,20 @@ from mpl_toolkits.mplot3d import Axes3D  # 绘制3D坐标的函数
 import numpy as np
 import os
 from matplotlib import cm
-def readOff(file):
+def readOffWithoutPca(file):
+    return readOff(file, isTranspose=False)
+
+
+def readOff(file, isTranspose=False):
     with open(file, 'r') as file:
-        if 'OFF' != file.readline().strip():
-            raise('Not a valid OFF header')
-        n_verts, n_faces, n_dontknow = tuple([int(s) for s in file.readline().strip().split(' ')])
+        firstLine = file.readline().strip()
+        if 'OFF' != firstLine[0:3]:
+            raise ('Not a valid OFF header')
+        if 'OFF' != firstLine:
+            imf = firstLine[3:]
+            n_verts, n_faces, n_dontknow = tuple([int(s) for s in imf.split(' ')])
+        else:
+            n_verts, n_faces, n_dontknow = tuple([int(s) for s in file.readline().strip().split(' ')])
         verts = np.array([[float(s) for s in file.readline().strip().split(' ')] for i_vert in range(n_verts)])
         faces = np.array([[int(s) for s in file.readline().strip().split(' ')][1:] for i_face in range(n_faces)])
 
@@ -33,37 +42,42 @@ def readOff(file):
         new_verts = verts-p
         # verts_mean = np.mean(verts, axis=0)
         # new_verts = verts - verts_mean
-        # PTP = np.dot(new_verts.T, new_verts)
-        # Area = 0
-        # for i in range(faces.shape[0]):
-        #     dotA = new_verts[faces[i][0]].reshape(1, 3)
-        #     dotB = new_verts[faces[i][1]].reshape(1, 3)
-        #     dotC = new_verts[faces[i][2]].reshape(1, 3)
-        #     # 边长
-        #     AB = np.linalg.norm(dotB - dotA, axis=1, keepdims=True)
-        #     BC = np.linalg.norm(dotC - dotB, axis=1, keepdims=True)
-        #     AC = np.linalg.norm(dotC - dotA, axis=1, keepdims=True)
-        #     p = (AB + BC + AC) / 2
-        #     s = np.sqrt(p * (p - AB) * (p - AC) * (p - AC))
-        #     Area += s
-        # M = PTP / Area
-        # eigenvalue, featurevector = np.linalg.eig(M)
-        # param_sort = np.argsort(-eigenvalue)  # 特整向量的排序
-        # R = featurevector[:, param_sort]
-        # R0 = R[:, 0] / np.linalg.norm(R[:, 0])
-        # R1 = R[:, 1] / np.linalg.norm(R[:, 1])
-        # R2 = R[:, 2] / np.linalg.norm(R[:, 2])
-        # # 构造旋转矩阵
-        # R = np.array([R0, R1, R2])
-        # P = np.dot(R, new_verts.T).T
 
+        if isTranspose:                # 是否做PCA旋转
+            PTP = np.dot(new_verts.T, new_verts)
+            Area = 0
+            for i in range(faces.shape[0]):
+                dotA = new_verts[faces[i][0]].reshape(1, 3)
+                dotB = new_verts[faces[i][1]].reshape(1, 3)
+                dotC = new_verts[faces[i][2]].reshape(1, 3)
+                # 边长
+                AB = np.linalg.norm(dotB - dotA, axis=1, keepdims=True)
+                BC = np.linalg.norm(dotC - dotB, axis=1, keepdims=True)
+                AC = np.linalg.norm(dotC - dotA, axis=1, keepdims=True)
+                p = (AB + BC + AC) / 2
+                s = np.sqrt(p * (p - AB) * (p - AC) * (p - AC))
+                Area += s
+            M = PTP / Area
+            eigenvalue, featurevector = np.linalg.eig(M)
+            param_sort = np.argsort(-eigenvalue)  # 特整向量的排序
+            R = featurevector[:, param_sort]
+            R0 = R[:, 0] / np.linalg.norm(R[:, 0])
+            R1 = R[:, 1] / np.linalg.norm(R[:, 1])
+            R2 = R[:, 2] / np.linalg.norm(R[:, 2])
+            # 构造旋转矩阵
+            R = np.array([R0, R1, R2])
+            P = np.dot(R, new_verts.T).T
+            # 统一缩放
+            s = np.max(np.abs(P))
+            P = P / s
+            return P, faces
         # 统一缩放
         s = np.max(np.abs(new_verts))
         new_verts = new_verts / s
         # P = P / s
         return new_verts, faces
 
-def mathArea(face):
+def mathArea(face):            # 暂不能使用
     dotA = verts[face[0]].reshape(1, 3)
     dotB = verts[face[1]].reshape(1, 3)
     dotC = verts[face[2]].reshape(1, 3)
@@ -77,7 +91,8 @@ def mathArea(face):
 
 if __name__ == '__main__':
     # file_dir = "C:\\Users\97933\Downloads\psb_v1\\benchmark\db\\15"
-    file_dir = "D:\\testmodels"
+    file_dir = "C:\\Users\97933\Downloads\ModelNet40\ModelNet40\dresser\\train"
+    # file_dir = "D:\\testmodels"
     for root, dirs, files in os.walk(file_dir):
         # print(root)  # 当前目录路径
         print(files)  # 当前路径下所有子目录
@@ -89,9 +104,14 @@ if __name__ == '__main__':
         model_path = file_dir + "\\" + files[i]
         print(model_path)
         with open(model_path, 'r') as file:
-            if 'OFF' != file.readline().strip():
+            firstLine = file.readline().strip()
+            if 'OFF' != firstLine[0:3]:
                 raise ('Not a valid OFF header')
-            n_verts, n_faces, n_dontknow = tuple([int(s) for s in file.readline().strip().split(' ')])
+            if 'OFF' != firstLine:
+                imf = firstLine[3:]
+                n_verts, n_faces, n_dontknow = tuple([int(s) for s in imf.split(' ')])
+            else:
+                n_verts, n_faces, n_dontknow = tuple([int(s) for s in file.readline().strip().split(' ')])
             verts = np.array([[float(s) for s in file.readline().strip().split(' ')] for i_vert in range(n_verts)])
             faces = np.array([[int(s) for s in file.readline().strip().split(' ')][1:] for i_face in range(n_faces)])
             x = verts[:, 0]

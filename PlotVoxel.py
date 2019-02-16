@@ -38,46 +38,87 @@ def plotVoxel(vox, boxSize):
     # return;
 
 
-def plot2DVoxel(vox, voxSize,name):
+def plot2DVoxel(vox, voxSize, name):
     # for i in range(0,3):
     #     index = i%2
     #     plt.scatter(vox[:, index], vox[:, index+1])
     #     plt.show()
-    voxSize = 100
+    # voxSize = 100
     plt.subplot(2, 2, 1)
     plt.xlim(0, voxSize)
     plt.ylim(0, voxSize)
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    # plt.imshow()
     plt.scatter(vox[:, 0], vox[:, 1])
 
     #
     plt.subplot(2, 2, 2)
     plt.xlim(0, voxSize)
     plt.ylim(0, voxSize)
+    plt.xlabel("Y")
+    plt.ylabel("Z")
     plt.scatter(vox[:, 1], vox[:, 2])
 
     plt.subplot(2, 2, 3)
     plt.xlim(0, voxSize)
     plt.ylim(0, voxSize)
+    plt.xlabel("X")
+    plt.ylabel("Z")
     plt.scatter(vox[:, 0], vox[:, 2])
 
 
     # plt.scatter(vox[:, 0], vox[:, 1])
     # plt.subplot(2, 2, 1)
+    plt.savefig('./pic/'+str(name)+'.png')
     plt.show()
+
+
+def plotHotPic(pic,voxSize,name="temp"):
+    # for i in range(0,3):
+    #     index = i%2
+    #     plt.scatter(vox[:, index], vox[:, index+1])
+    #     plt.show()
+    # voxSize = 100
+    plt.subplot(2, 2, 1)
+    plt.xlim(0, voxSize)
+    plt.ylim(0, voxSize)
+    plt.xlabel("X")
+    plt.ylabel("Y")
+    plt.imshow(pic[0])
+    # plt.scatter(vox[:, 0], vox[:, 1])
+
+    #
+    plt.subplot(2, 2, 2)
+    plt.xlim(0, voxSize)
+    plt.ylim(0, voxSize)
+    plt.xlabel("Y")
+    plt.ylabel("Z")
+    plt.imshow(pic[1])
+
+    plt.subplot(2, 2, 3)
+    plt.xlim(0, voxSize)
+    plt.ylim(0, voxSize)
+    plt.xlabel("Z")
+    plt.ylabel("X")
+    plt.imshow(pic[2])
+
+    plt.savefig('./pic/'+str(name)+'.png')
+    # plt.show()
 
 if __name__ == '__main__':
     # vox = np.array([[1,1,1]])
     # plotVoxel(vox=vox, boxSize=64)
     #
-    file_dir = "bed_0043.off"
-    verts, faces = ReadOff.readOff(file_dir)
+    file_dir = "m0.off"
+    verts, faces = ReadOff.readOffWithoutPca(file_dir)
     vox = Tri2Vox.Tri2Vox(verts, faces, 32)
     pics = []
     for j in range(3):
         index = (j+1)%3
         pic = np.zeros((64,64))
         voxL = vox[:,[j,index]]
-        voxL = np.unique(voxL, axis=0)
+        # voxL = np.unique(voxL, axis=0)
         for i in range(voxL.shape[0]):
             x = int(voxL[i][0])-1
             y = int(voxL[i][1])-1
@@ -85,4 +126,4 @@ if __name__ == '__main__':
         pics.append(pic)
 
     plotVoxel(vox, 64)
-    plot2DVoxel(vox, 64,file_dir)
+    plot2DVoxel(vox, 64, file_dir)
