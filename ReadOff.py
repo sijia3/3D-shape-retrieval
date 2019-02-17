@@ -23,7 +23,7 @@ def readOff(file, isTranspose=False):
         # 平移 todo 重做（根据面片权值）
         Area = 0
         S = 0   # 加权面积
-        for i in range(faces.shape[0]):
+        for i in range(faces.shape[0]):    # int(faces.shape[0])
             pointId = faces[i,:]
             dotA = verts[faces[i][0]].reshape(1, 3)
             dotB = verts[faces[i][1]].reshape(1, 3)
@@ -32,8 +32,10 @@ def readOff(file, isTranspose=False):
             AB = np.linalg.norm(dotB - dotA, axis=1, keepdims=True)
             BC = np.linalg.norm(dotC - dotB, axis=1, keepdims=True)
             AC = np.linalg.norm(dotC - dotA, axis=1, keepdims=True)
+
             p = (AB + BC + AC) / 2
-            s = np.sqrt(p * (p - AB) * (p - AC) * (p - AC))  # 该面片的面积
+            # print(i,AB,BC,AC,p)
+            s = np.sqrt(p * np.abs(p - AB) * np.abs(p - AC) * np.abs(p - AC))  # 该面片的面积
             # todo 计算面片质心
             planeGri = np.mean(verts[pointId], axis=0)
             S += s * planeGri;          # sum（gi * Si）

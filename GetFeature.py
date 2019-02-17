@@ -7,14 +7,15 @@ import PlotTri
 import PlotVoxel
 import Tri2Vox
 import ReadOff
-                         #关闭文件
-#
-#
-# #HDF5的读取：
-# f = h5py.File('HDF5_FILE.h5','r')   #打开h5文件
-# f.keys()                            #可以查看所有的主键
-# a = f['data'][:]                    #取出主键为data的所有的键值
-# f.close()
+
+
+def readH5File():       # HDF5的读取
+    f = h5py.File('./datasets/train.h5','r')   #打开h5文件
+    f.keys()                            #可以查看所有的主键
+    a = f['data'][:]                    #取出主键为data的所有的键值
+    b = f['labels'][:]
+    print(a, b)
+    f.close()
 
 
 
@@ -33,7 +34,7 @@ def getFeature(file_dir):
         # PlotVoxel.plotVoxel(vox, 64)
         # PlotTri.plotTri(verts,faces)
         pics = getPics(vox, isInDepth=True)
-        PlotVoxel.plotHotPic(pics, 64, files[i])
+        # PlotVoxel.plotHotPic(pics, 64, files[i])
         allPics.append(pics)
         print("已完成第"+str(i+1)+"个")
     allPics = np.array(allPics)
@@ -44,6 +45,7 @@ def getPics(vox, isInDepth = False):
     pics = []
     for j in range(3):
         index = (j + 1) % 3
+
         pic = np.zeros((64, 64))
         voxL = vox[:, [j, index]]
         if not isInDepth:
@@ -61,15 +63,20 @@ def getPics(vox, isInDepth = False):
     return pics
 
 
-def writeH5(filename, voxs, labels):
+def writeH5(filename, voxs, labels=[]):
+    # labels = np.array([[i for i in range(1, 12)]])
     # HDF5的写入：
     # (h, w) = voxs.shape
     # imgData = np.ones((1000,64,64,3))
+    print("开始写入文件》》》》》")
     f = h5py.File(filename,'w')   # 创建一个h5文件，文件指针是f
     f['data'] = voxs                 # 将数据写入文件的主键data下面
-    f['labels'] = range(len(labels))            # 将数据写入文件的主键labels下面
+
+    f['labels'] = labels           # 将数据写入文件的主键labels下面
+    print("写入结束《《《《《《")
     f.close()
 
 
 if __name__ == '__main__':
-    a = getFeature("D:\\testmodels");
+    # feature = getFeature("./model");
+    labels = np.array([[i for i in range(1, 12)]])
