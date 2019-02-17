@@ -76,7 +76,13 @@ def writeH5(filename, voxs, labels=[]):
     print("写入结束《《《《《《")
     f.close()
 
+def convert_to_one_hot(Y, C):    # 标签转换
+    Y = np.eye(C)[Y.reshape(-1)].T
+    return Y
 
 if __name__ == '__main__':
     # feature = getFeature("./model");
-    labels = np.array([[i for i in range(1, 12)]])
+    labels = np.array([[i for i in range(0, 11)]])
+    Y = convert_to_one_hot(labels,12)
+
+
