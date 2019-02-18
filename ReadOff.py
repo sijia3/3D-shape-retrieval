@@ -77,6 +77,7 @@ def readOff(file, isTranspose=False):
         s = np.max(np.abs(new_verts))
         new_verts = new_verts / s
         # P = P / s
+        print(str(file)+"预处理完成。。。。")
         return new_verts, faces
 
 def mathArea(face):            # 暂不能使用

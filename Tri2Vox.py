@@ -65,9 +65,10 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
 
 
 if __name__ == '__main__':
-    file_dir = "./model/dresser_0026.off"
+    file_dir = "./model/.off"
     verts, faces = ReadOff.readOff(file_dir)
     vox = Tri2Vox(verts, faces, 32)
     PlotTri.plotTri(verts,faces)
     PlotVoxel.plotVoxel(vox,64)
+
 
