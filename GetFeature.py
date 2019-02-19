@@ -35,6 +35,7 @@ def getFeature(file_dir):
             break;
         for j in range(len(mid_files)):
             print("文件夹："+str(file_dir)+"---第"+str(j+1)+"个开始提取特征")
+            print("文件名："+str(mid_files))
             modelFile = modelDir + "\\" + str(mid_files[j])
             verts, faces = ReadOff.readOff(modelFile)
             vox = Tri2Vox.Tri2Vox(verts, faces, 32)
@@ -44,7 +45,7 @@ def getFeature(file_dir):
             pics = getPics(vox, isInDepth=True)
             # PlotVoxel.plotHotPic(pics, 64, files[i])
             allPics.append(pics)
-            print("已完成第"+str(j+1)+"个")
+            print("已完成第"+str(i+1)+"个文件夹的第"+str(j+1)+"个")
         allPics = np.array(allPics)
     return allPics
 
@@ -91,8 +92,9 @@ def convert_to_one_hot(Y, C):    # 标签转换
 if __name__ == '__main__':
     feature = getFeature("D:\\testmodels")
     labels = getLabels("D:\\testmodels")
-    writeH5('./datasets/train.h5', feature, labels)
-    Y = convert_to_one_hot(labels, 10)
+    writeH5('./datasets/train_model.h5', feature, labels)
+    # Y = convert_to_one_hot(labels, 10)
+    # a,b = readH5File("./datasets/train.h5")
 
 
     # startTime = time.time()
