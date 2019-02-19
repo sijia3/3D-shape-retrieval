@@ -9,6 +9,7 @@ import PlotTri
 import PlotVoxel
 import Tri2Vox
 import ReadOff
+from GetLabels import getLabels
 
 
 def readH5File(file):       # HDF5的读取
@@ -24,22 +25,27 @@ def readH5File(file):       # HDF5的读取
 def getFeature(file_dir):
     # file_dir = "D:\\Downloads\ModelNet10\ModelNet10\\alltest"
     for root, dirs, files in os.walk(file_dir):
-        # print(root)  # 当前目录路径
+        print(dirs)  # 当前目录路径
         print(files)  # 当前路径下所有子目录
         break;
     allPics = []
-    for i in range(len(files)):
-        file = file_dir + "\\" + files[i]
-        verts, faces = ReadOff.readOff(file)
-        vox = Tri2Vox.Tri2Vox(verts, faces, 32)
-        # PlotVoxel.plot2DVoxel(vox, 64,files[i])
-        # PlotVoxel.plotVoxel(vox, 64)
-        # PlotTri.plotTri(verts,faces)
-        pics = getPics(vox, isInDepth=True)
-        # PlotVoxel.plotHotPic(pics, 64, files[i])
-        allPics.append(pics)
-        print("已完成第"+str(i+1)+"个")
-    allPics = np.array(allPics)
+    for i in range(len(dirs)):
+        modelDir = file_dir+"\\"+dirs[i]
+        for mid_root, mid_dirs, mid_files in os.walk(modelDir):
+            break;
+        for j in range(len(mid_files)):
+            print("文件夹："+str(file_dir)+"---第"+str(j+1)+"个开始提取特征")
+            modelFile = modelDir + "\\" + str(mid_files[j])
+            verts, faces = ReadOff.readOff(modelFile)
+            vox = Tri2Vox.Tri2Vox(verts, faces, 32)
+            # PlotVoxel.plot2DVoxel(vox, 64,files[i])
+            # PlotVoxel.plotVoxel(vox, 64)
+            # PlotTri.plotTri(verts,faces)
+            pics = getPics(vox, isInDepth=True)
+            # PlotVoxel.plotHotPic(pics, 64, files[i])
+            allPics.append(pics)
+            print("已完成第"+str(j+1)+"个")
+        allPics = np.array(allPics)
     return allPics
 
 
@@ -83,9 +89,8 @@ def convert_to_one_hot(Y, C):    # 标签转换
     return Y
 
 if __name__ == '__main__':
-    feature = getFeature("D:\\testmodel10");
-    labels = np.array([[i for i in range(0, 10)]])   # 1* 10
-    labels = np.array([[0,1,2,2,3,4,5,6,7,8,9]])
+    feature = getFeature("D:\\testmodels")
+    labels = getLabels("D:\\testmodels")
     writeH5('./datasets/train.h5', feature, labels)
     Y = convert_to_one_hot(labels, 10)
 
