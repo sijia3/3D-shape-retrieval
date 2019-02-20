@@ -12,14 +12,14 @@ import ReadOff
 from GetLabels import getLabels
 
 
-def readH5File(file):       # HDF5的读取
+def readH5File(file, key):       # HDF5的读取
     f = h5py.File(file,'r')   #打开h5文件
-    f.keys()                            #可以查看所有的主键
-    a = f['data'][:]                    #取出主键为data的所有的键值
-    b = f['labels'][:]
+    # f.keys()                            #可以查看所有的主键
+    a = f[key][:]                    #取出主键为data的所有的键值
+    # b = f['labels'][:]
     # print(a, b)
     f.close()
-    return a, b
+    return a
 
 
 def getFeature(file_dir):
@@ -35,7 +35,7 @@ def getFeature(file_dir):
             break;
         for j in range(len(mid_files)):
             print("文件夹："+str(file_dir)+"---第"+str(j+1)+"个开始提取特征")
-            print("文件名："+str(mid_files))
+            print("文件名："+str(mid_files[j]))
             modelFile = modelDir + "\\" + str(mid_files[j])
             verts, faces = ReadOff.readOff(modelFile)
             vox = Tri2Vox.Tri2Vox(verts, faces, 32)
@@ -46,7 +46,7 @@ def getFeature(file_dir):
             # PlotVoxel.plotHotPic(pics, 64, files[i])
             allPics.append(pics)
             print("已完成第"+str(i+1)+"个文件夹的第"+str(j+1)+"个")
-        allPics = np.array(allPics)
+    allPics = np.array(allPics)
     return allPics
 
 
@@ -90,12 +90,12 @@ def convert_to_one_hot(Y, C):    # 标签转换
     return Y
 
 if __name__ == '__main__':
-    feature = getFeature("D:\\testmodels")
-    labels = getLabels("D:\\testmodels")
-    writeH5('./datasets/train_model.h5', feature, labels)
+    feature = getFeature("D:\\trainmodels")
+    # labels = getLabels("D:\\testmodels")
+    writeH5('./datasets/test_model.h5', feature)
     # Y = convert_to_one_hot(labels, 10)
-    # a,b = readH5File("./datasets/train.h5")
-
+    # a = readH5File("./datasets/train_labels.h5", 'labels')
+    # Y = convert_to_one_hot(a, 10)
 
     # startTime = time.time()
     # verts, faces = ReadOff.readOff("./model/bathtub_0001.off")

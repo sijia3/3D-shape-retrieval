@@ -12,11 +12,11 @@ from tensorflow.python.framework import ops
 import GetFeature as GF
 import CNNUtils
 
-XTrain, YLabels = GF.readH5File('./datasets/train.h5')
-YLabels = GF.convert_to_one_hot(YLabels, 10).T
-print(str(XTrain.shape))
-print(str(YLabels.shape))
 
+
+
+
+# 创建占位符
 def create_placeholders(n_H0, n_W0, n_C0, n_y):
     """
     Creates the placeholders for the tensorflow session.
@@ -39,13 +39,14 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
 
     return X, Y
 
-X, Y = create_placeholders(64, 64, 3, 10)
-print ("X = " + str(X))
-print ("Y = " + str(Y))
+# X, Y = create_placeholders(64, 64, 3, 10)
+# print ("X = " + str(X))
+# print ("Y = " + str(Y))
 
 
 # GRADED FUNCTION: initialize_parameters
 
+# 初始化参数
 def initialize_parameters():
     """
     Initializes weight parameters to build a neural network with tensorflow. The shapes are:
@@ -67,13 +68,13 @@ def initialize_parameters():
 
     return parameters
 
-tf.reset_default_graph()
-with tf.Session() as sess_test:
-    parameters = initialize_parameters()
-    init = tf.global_variables_initializer()
-    sess_test.run(init)
-    print("W1 = " + str(parameters["W1"].eval()[1,1,1]))
-    print("W2 = " + str(parameters["W2"].eval()[1,1,1]))
+# tf.reset_default_graph()
+# with tf.Session() as sess_test:
+#     parameters = initialize_parameters()
+#     init = tf.global_variables_initializer()
+#     sess_test.run(init)
+#     print("W1 = " + str(parameters["W1"].eval()[1,1,1]))
+#     print("W2 = " + str(parameters["W2"].eval()[1,1,1]))
 
 
 # GRADED FUNCTION: forward_propagation
@@ -118,18 +119,18 @@ def forward_propagation(X, parameters):
     ### END CODE HERE ###
 
     return Z3
-tf.reset_default_graph()
+# tf.reset_default_graph()
 
-with tf.Session() as sess:
-    np.random.seed(1)
-    X, Y = create_placeholders(64, 64, 3, 6)
-#     print(X.shape)
-    parameters = initialize_parameters()
-    Z3 = forward_propagation(X, parameters)
-    init = tf.global_variables_initializer()
-    sess.run(init)
-    a = sess.run(Z3, {X: np.random.randn(2,64,64,3), Y: np.random.randn(2,6)})
-    print("Z3 = " + str(a))
+# with tf.Session() as sess:
+#     np.random.seed(1)
+#     X, Y = create_placeholders(64, 64, 3, 10)
+# #     print(X.shape)
+#     parameters = initialize_parameters()
+#     Z3 = forward_propagation(X, parameters)
+#     init = tf.global_variables_initializer()
+#     sess.run(init)
+#     a = sess.run(Z3, {X: np.random.randn(2,64,64,3), Y: np.random.randn(2,6)})
+#     print("Z3 = " + str(a))
 
 
 # GRADED FUNCTION: compute_cost
@@ -151,21 +152,21 @@ def compute_cost(Z3, Y):
     ### END CODE HERE ###
 
     return cost
-
-tf.reset_default_graph()
-
-with tf.Session() as sess:
-    np.random.seed(1)
-    X, Y = create_placeholders(64, 64, 3, 6)
-    parameters = initialize_parameters()
-    Z3 = forward_propagation(X, parameters)
-    cost = compute_cost(Z3, Y)
-    init = tf.global_variables_initializer()
-    sess.run(init)
-    a = sess.run(cost, {X: np.random.randn(4,64,64,3), Y: np.random.randn(4,6)})
-    print("cost = " + str(a))
-
-
+#
+# tf.reset_default_graph()
+#
+# with tf.Session() as sess:
+#     np.random.seed(1)
+#     X, Y = create_placeholders(64, 64, 3, 6)
+#     parameters = initialize_parameters()
+#     Z3 = forward_propagation(X, parameters)
+#     cost = compute_cost(Z3, Y)
+#     init = tf.global_variables_initializer()
+#     sess.run(init)
+#     a = sess.run(cost, {X: np.random.randn(4,64,64,3), Y: np.random.randn(4,6)})
+#     print("cost = " + str(a))
+#
+#
 # GRADED FUNCTION: model
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate=0.009,
@@ -203,24 +204,16 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.009,
     ### END CODE HERE ###
 
     # Initialize parameters
-    ### START CODE HERE ### (1 line)
     parameters = initialize_parameters()
-    ### END CODE HERE ###
 
     # Forward propagation: Build the forward propagation in the tensorflow graph
-    ### START CODE HERE ### (1 line)
     Z3 = forward_propagation(X, parameters)
-    ### END CODE HERE ###
 
     # Cost function: Add cost function to tensorflow graph
-    ### START CODE HERE ### (1 line)
     cost = compute_cost(Z3, Y)
-    ### END CODE HERE ###
 
     # Backpropagation: Define the tensorflow optimizer. Use an AdamOptimizer that minimizes the cost.
-    ### START CODE HERE ### (1 line)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
-    ### END CODE HERE ###
 
     # Initialize all the variables globally
     init = tf.global_variables_initializer()
@@ -244,10 +237,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.009,
                 (minibatch_X, minibatch_Y) = minibatch
                 # IMPORTANT: The line that runs the graph on a minibatch.
                 # Run the session to execute the optimizer and the cost, the feedict should contain a minibatch for (X,Y).
-                ### START CODE HERE ### (1 line)
                 _, temp_cost = sess.run([optimizer, cost], feed_dict={X: minibatch_X, Y: minibatch_Y})
-                ### END CODE HERE ###
-
                 minibatch_cost += temp_cost / num_minibatches
 
             # Print the cost every epoch
@@ -277,4 +267,29 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.009,
 
         return train_accuracy, test_accuracy, parameters
 
-# _, _, parameters = model(X_train, Y_train, X_test, Y_test)
+
+def loadDataSets():
+    XTrain = GF.readH5File('./datasets/train_model.h5', 'data')
+    YLabels = GF.readH5File('./datasets/train_labels.h5', 'labels')
+    YLabels = YLabels.reshape(1, len(YLabels)).astype('int64')
+    YLabels = GF.convert_to_one_hot(YLabels, 10).T
+    XTest = GF.readH5File('./datasets/test_model.h5', 'data')
+    YTestLabels = GF.readH5File('./datasets/test_labels.h5', 'labels')
+    YTestLabels = YTestLabels.reshape(1, len(YTestLabels)).astype('int64')
+    YTestLabels = GF.convert_to_one_hot(YTestLabels, 10).T
+    return XTrain, YLabels, XTest, YTestLabels
+
+
+if __name__ == '__main__':
+    # XTrain, YLabels, XTest, YTestLabels = loadDataSets()
+    # _, _, parameters = model(XTrain, YLabels, XTest, YTestLabels)
+
+
+
+    # Loading the data (signs)
+    X_train_orig, Y_train_orig, X_test_orig, Y_test_orig, classes = CNNUtils.load_dataset()
+    X_train = X_train_orig / 255.
+    X_test = X_test_orig / 255.
+    Y_train = CNNUtils.convert_to_one_hot(Y_train_orig, 6).T
+    Y_test = CNNUtils.convert_to_one_hot(Y_test_orig, 6).T
+    _, _, parameters = model(X_train, Y_train, X_test, Y_test)
