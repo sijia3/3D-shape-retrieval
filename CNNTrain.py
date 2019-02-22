@@ -115,9 +115,12 @@ def forward_propagation(X, parameters):
     # FULLY-CONNECTED without non-linear activation function (not not call softmax).
     # 6 neurons in output layer. Hint: one of the arguments should be "activation_fn=None"
     print(P2)
-    Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
+    # Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
+    Z3 = tf.contrib.layers.fully_connected(P2, 32)
 
-    return Z3
+    Z4 = tf.contrib.layers.fully_connected(Z3, 10, activation_fn=None)
+
+    return Z4
 # tf.reset_default_graph()
 
 # with tf.Session() as sess:
@@ -165,7 +168,7 @@ def compute_cost(Z3, Y):
 # GRADED FUNCTION: model
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
-          num_epochs=10, minibatch_size=64, print_cost=True):
+          num_epochs=500, minibatch_size=64, print_cost=True, save_session= False):
     """
     Implements a three-layer ConvNet in Tensorflow:
     CONV2D -> RELU -> MAXPOOL -> CONV2D -> RELU -> MAXPOOL -> FLATTEN -> FULLYCONNECTED
@@ -239,33 +242,26 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
             if print_cost == True and epoch % 5 == 0:
                 print("Cost after epoch %i: %f" % (epoch, minibatch_cost))
                 predict_op = tf.argmax(Z3, 1)  # 返回每行最大值的索引值
+                # print(predict_op.eval({X: X_train}))
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
-
                 # Calculate accuracy on the test set
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
                 # print(accuracy.eval())
                 train_accuracy = accuracy.eval({X: X_train, Y: Y_train})
                 test_accuracy = accuracy.eval({X: X_test, Y: Y_test})
-
                 print("Train Accuracy:", train_accuracy)
                 print("Test Accuracy:", test_accuracy)
             if print_cost == True and epoch % 1 == 0:
                 costs.append(minibatch_cost)
-
-        print(parameters["W1"].eval())
         # plot the cost
         # plt.plot(np.squeeze(costs))
         # plt.ylabel('cost')
         # plt.xlabel('iterations (per tens)')
         # plt.title("Learning rate =" + str(learning_rate))
         # plt.show()
-    # init = tf.global_variables_initializer()
-    # with tf.Session as se:
-        # se.run(init)
-        # Calculate the correct predictions
 
-
-        saver.save(sess, './logs/tt.ckpt')
+        if save_session == True:
+            saver.save(sess, './logs/model.ckpt')
         return parameters
 
 def loadDataSets():
@@ -283,7 +279,7 @@ def loadDataSets():
 if __name__ == '__main__':
     # 三维模型测试
     X_train, Y_train, X_test, Y_test = loadDataSets()
-    parameters = model(X_train, Y_train, X_test, Y_test)
+    parameters = model(X_train, Y_train, X_test, Y_test, num_epochs=100)
     # learning_rate = 0.010
     # num_epochs = 5
     # minibatch_size = 64
