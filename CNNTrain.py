@@ -262,6 +262,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
         if save_session == True:
             saver.save(sess, './logs/model.ckpt')
+            print("模型保存成功.")
         return parameters
 
 def loadDataSets():
@@ -279,7 +280,7 @@ def loadDataSets():
 if __name__ == '__main__':
     # 三维模型测试
     X_train, Y_train, X_test, Y_test = loadDataSets()
-    parameters = model(X_train, Y_train, X_test, Y_test, num_epochs=100)
+    parameters = model(X_train, Y_train, X_test, Y_test, num_epochs=40,save_session=True)
     # learning_rate = 0.010
     # num_epochs = 5
     # minibatch_size = 64

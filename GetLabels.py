@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import glob
-from ModelDict import model
+from ModelList import model
 import h5py  #导入工具包
 
 
