@@ -12,17 +12,28 @@ import ReadOff
 from GetLabels import getLabels
 
 
-def readH5File(file, key):       # HDF5的读取
-    f = h5py.File(file,'r')   #打开h5文件
+def readH5File(filename, key):       # HDF5的读取
+    """
+    读取H5文件
+    :param file: 文件名字
+    :param key: 键
+    :return: value: 该键对应的值
+    """
+    f = h5py.File(filename,'r')   #打开h5文件
     # f.keys()                            #可以查看所有的主键
-    a = f[key][:]                    #取出主键为data的所有的键值
+    value = f[key][:]                    #取出主键为data的所有的键值
     # b = f['labels'][:]
     # print(a, b)
     f.close()
-    return a
+    return value
 
 
 def getFeature(file_dir):
+    """
+    获取该文件夹下所有目录下的模型特征
+    :param file_dir: 主文件夹目录
+    :return: allPics: 模型的三视图特征
+    """
     # file_dir = "D:\\Downloads\ModelNet10\ModelNet10\\alltest"
     for root, dirs, files in os.walk(file_dir):
         print(dirs)  # 当前目录路径
@@ -51,6 +62,12 @@ def getFeature(file_dir):
 
 
 def getPics(vox, isInDepth = False):
+    """
+    提取单个模型的三视图特征
+    :param vox: 模型的体素化点
+    :param isInDepth: 是否提取深层图像
+    :return: pics：模型的三视图特征
+    """
     pics = []
     for j in range(3):
         index = (j + 1) % 3
@@ -72,27 +89,34 @@ def getPics(vox, isInDepth = False):
     return pics
 
 
-def writeH5(filename, voxs, labels=[]):
-    # labels = np.array([[i for i in range(1, 12)]])
-    # HDF5的写入：
-    # (h, w) = voxs.shape
-    # imgData = np.ones((1000,64,64,3))
-    print("开始写入文件》》》》》")
-    f = h5py.File(filename,'w')   # 创建一个h5文件，文件指针是f
-    f['data'] = voxs                 # 将数据写入文件的主键data下面
-
-    f['labels'] = labels           # 将数据写入文件的主键labels下面
-    print("写入结束《《《《《《")
-    f.close()
+# def writeH5(filename, voxs, labels=[]):
+#     """
+#
+#     :param filename:
+#     :param voxs:
+#     :param labels:
+#     :return:
+#     """
+#     # labels = np.array([[i for i in range(1, 12)]])
+#     # HDF5的写入：
+#     # (h, w) = voxs.shape
+#     # imgData = np.ones((1000,64,64,3))
+#     print("开始写入文件》》》》》")
+#     f = h5py.File(filename,'w')   # 创建一个h5文件，文件指针是f
+#     f['data'] = voxs                 # 将数据写入文件的主键data下面
+#
+#     f['labels'] = labels           # 将数据写入文件的主键labels下面
+#     print("写入结束《《《《《《")
+#     f.close()
 
 def convert_to_one_hot(Y, C):    # 标签转换
     Y = np.eye(C)[Y.reshape(-1)].T
     return Y
 
-if __name__ == '__main__':
-    feature = getFeature("D:\\trainmodels")
+# if __name__ == '__main__':
+#     feature = getFeature("D:\\trainmodels")
     # labels = getLabels("D:\\testmodels")
-    writeH5('./datasets/test_model.h5', feature)
+    # writeH5('./datasets/test_model.h5', feature)
     # Y = convert_to_one_hot(labels, 10)
     # a = readH5File("./datasets/train_labels.h5", 'labels')
     # Y = convert_to_one_hot(a, 10)

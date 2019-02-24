@@ -3,12 +3,18 @@ from mpl_toolkits.mplot3d import Axes3D  # 绘制3D坐标的函数
 import numpy as np
 import os
 from matplotlib import cm
+
 def readOffWithoutPca(file):
     return readOff(file, isTranspose=False)
 
-
-def readOff(file, isTranspose=False):
-    with open(file, 'r') as file:
+def readOff(filename, isTranspose=False):
+    """
+    函数功能：读取文件内容并预处理模型
+    :param filename: 文件名字
+    :param isTranspose: 是否使用PCA
+    :return: new_verts, faces：处理好后的模型点和面片
+    """
+    with open(filename, 'r') as file:
         firstLine = file.readline().strip()
         if 'OFF' != firstLine[0:3]:
             raise ('Not a valid OFF header')
@@ -77,7 +83,7 @@ def readOff(file, isTranspose=False):
         s = np.max(np.abs(new_verts))
         new_verts = new_verts / s
         # P = P / s
-        print(str(file)+"预处理完成。。。。")
+        print(str(filename)+"预处理完成。。。。")
         return new_verts, faces
 
 def mathArea(face):            # 暂不能使用

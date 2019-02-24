@@ -168,7 +168,7 @@ def compute_cost(Z3, Y):
 # GRADED FUNCTION: model
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
-          num_epochs=500, minibatch_size=64, print_cost=True, save_session= False):
+          num_epochs=500, minibatch_size=64, print_cost=True, save_session= False, save_file='./logs/modelBeta1.ckpt'):
     """
     Implements a three-layer ConvNet in Tensorflow:
     CONV2D -> RELU -> MAXPOOL -> CONV2D -> RELU -> MAXPOOL -> FLATTEN -> FULLYCONNECTED
@@ -261,7 +261,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
         # plt.show()
 
         if save_session == True:
-            saver.save(sess, './logs/model.ckpt')
+            saver.save(sess, save_file)
             print("模型保存成功.")
         return parameters
 
@@ -277,10 +277,10 @@ def loadDataSets():
     return XTrain, YLabels, XTest, YTestLabels
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # 三维模型测试
-    X_train, Y_train, X_test, Y_test = loadDataSets()
-    parameters = model(X_train, Y_train, X_test, Y_test, num_epochs=40,save_session=True)
+    # X_train, Y_train, X_test, Y_test = loadDataSets()
+    # parameters = model(X_train, Y_train, X_test, Y_test, num_epochs=60,save_session=True)
     # learning_rate = 0.010
     # num_epochs = 5
     # minibatch_size = 64

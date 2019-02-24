@@ -7,7 +7,7 @@ from matplotlib import cm
 import ReadOff
 
 
-def plotTri(planes,faces, filename):
+def plotTri(planes, faces, filename):
     # plot
     x = (planes[:, 0]+1)*32
     y = (planes[:, 1]+1)*32
@@ -29,6 +29,6 @@ if __name__ == '__main__':
     # vox = np.array([[1,1,1]])
     # plotVoxel(vox=vox, boxSize=64)
     #
-    file_dir = "./$RAXIQBV.off"
-    verts, faces = ReadOff.readOffWithoutPca(file_dir)
+    file_dir = "./model/m0.off"
+    verts, faces = ReadOff.readOff(file_dir)
     plotTri(verts, faces)

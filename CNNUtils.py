@@ -4,24 +4,45 @@ import h5py
 import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.python.framework import ops
+import H5FileUtils as h5utils
 
 
 
-def load_dataset():
-    train_dataset = h5py.File('datasets/train_signs.h5', "r")
-    train_set_x_orig = np.array(train_dataset["train_set_x"][:])  # your train set features
-    train_set_y_orig = np.array(train_dataset["train_set_y"][:])  # your train set labels
+# def load_dataset():
+#     train_dataset = h5py.File('datasets/train_signs.h5', "r")
+#     train_set_x_orig = np.array(train_dataset["train_set_x"][:])  # your train set features
+#     train_set_y_orig = np.array(train_dataset["train_set_y"][:])  # your train set labels
+#
+#     test_dataset = h5py.File('datasets/test_signs.h5', "r")
+#     test_set_x_orig = np.array(test_dataset["test_set_x"][:])  # your test set features
+#     test_set_y_orig = np.array(test_dataset["test_set_y"][:])  # your test set labels
+#
+#     classes = np.array(test_dataset["list_classes"][:])  # the list of classes
+#
+#     train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
+#     test_set_y_orig = test_set_y_orig.reshape((1, test_set_y_orig.shape[0]))
+#
+#     return train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes
+#
 
-    test_dataset = h5py.File('datasets/test_signs.h5', "r")
-    test_set_x_orig = np.array(test_dataset["test_set_x"][:])  # your test set features
-    test_set_y_orig = np.array(test_dataset["test_set_y"][:])  # your test set labels
+def loadDataSets(trainFile, testFile):
+    """
+    加载模型数据
+    :param trainFile: 训练模型数据
+    :param testFile: 测试模型数据
+    :return: 加载后的模型特征跟标签数据
+    """
+    # trainFile = './datasets/train_model.h5'
+    XTrain, YTrain= h5utils.readH5File(trainFile)
+    YTrain = YTrain.reshape(1, len(YTrain)).astype('int64')
+    YTrain = convert_to_one_hot(YTrain, 10).T
 
-    classes = np.array(test_dataset["list_classes"][:])  # the list of classes
+    # testFile = './datasets/test_model.h5'
+    XTest, YTest = h5utils.readH5File(testFile)
+    YTest = YTest.reshape(1, len(YTest)).astype('int64')
+    YTest = convert_to_one_hot(YTest, 10).T
+    return XTrain, YTrain, XTest, YTest
 
-    train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
-    test_set_y_orig = test_set_y_orig.reshape((1, test_set_y_orig.shape[0]))
-
-    return train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes
 
 
 def random_mini_batches(X, Y, mini_batch_size=64, seed=0):
@@ -155,3 +176,5 @@ def predict(X, parameters):
 #        prediction = sess.run(p, feed_dict = {x: X})
 #
 #    return prediction
+if __name__ == '__main__':
+    load_dataset();

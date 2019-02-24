@@ -9,6 +9,13 @@ import ReadOff
 import PlotVoxel
 #  表体素化
 def Tri2Vox(modelPoint, modelPlane, voxSize):
+    """
+    体素化模型
+    :param modelPoint: 模型点
+    :param modelPlane: 模型面片
+    :param voxSize: 体素化尺寸
+    :return: vox：体素化点
+    """
     # 像素点初始化
     (numPoint, dim) = modelPoint.shape;
     (numPlane, dot) = modelPlane.shape;
