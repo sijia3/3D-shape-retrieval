@@ -17,14 +17,14 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
     :return: vox：体素化点
     """
     # 像素点初始化
-    (numPoint, dim) = modelPoint.shape;
-    (numPlane, dot) = modelPlane.shape;
+    (numPoint, dim) = modelPoint.shape
+    (numPlane, dot) = modelPlane.shape
     modelPoint = modelPoint+1       # 将坐标移到第一象限
     modelPoint = modelPoint*voxSize
 
 
     # 遍历面片
-    segEle = 1.0
+    segEle = 1.0        # 体素宽度
     layoutVox = np.array([0,0,0])       # 初始化
     # layoutVox = []
     for i in range(0, numPlane):

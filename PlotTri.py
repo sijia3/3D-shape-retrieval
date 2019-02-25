@@ -8,6 +8,13 @@ import ReadOff
 
 
 def plotTri(planes, faces, filename):
+    """
+    三维模型绘制
+    :param planes: 点
+    :param faces: 面片
+    :param filename: 文件名
+    :return: void：空
+    """
     # plot
     x = (planes[:, 0]+1)*32
     y = (planes[:, 1]+1)*32

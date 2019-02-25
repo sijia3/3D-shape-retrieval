@@ -7,6 +7,13 @@ import ReadOff
 import Tri2Vox
 
 def plotVoxel(vox, boxSize):
+    """
+    绘制三维模型散点图
+    :param vox: 三维模型点
+    :param boxSize: 模型大小
+    :return:
+    """
+
     # plot
     x = vox[:, 0]
     y = vox[:, 1]
@@ -39,6 +46,13 @@ def plotVoxel(vox, boxSize):
 
 
 def plot2DVoxel(vox, voxSize, name):
+    """
+    绘制三维模型三视图
+    :param vox: 模型点
+    :param voxSize: 模型大小
+    :param name: 模型名字
+    :return:
+    """
     # for i in range(0,3):
     #     index = i%2
     #     plt.scatter(vox[:, index], vox[:, index+1])
