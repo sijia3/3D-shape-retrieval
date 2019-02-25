@@ -61,7 +61,7 @@ def random_mini_batches(X, Y, mini_batch_size=64, seed=0):
 
     m = X.shape[0]  # number of training examples
     mini_batches = []
-    np.random.seed(seed)
+    # np.random.seed(seed)
 
     # Step 1: Shuffle (X, Y)
     permutation = list(np.random.permutation(m))

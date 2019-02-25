@@ -20,18 +20,17 @@ def getFea(dir, filename):
     h5utils.writeH5(filename, vox, labels)
 
 def cnnTrain():
-    trainFile = './datasets/3dModelTrainBeta1.h5'
-    testFile = './datasets/3dModelTestBeta1.h5'
+    trainFile = './datasets/3dModelTrainBeta3.h5'
+    testFile = './datasets/3dModelTestBeta3.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
-    parameters = CT.model(XTrain, YTrain, XTest, YTest, num_epochs=500, save_session=True,
-                          save_file='./logs/modelBeta1.ckpt')
+    parameters = CT.model(XTrain, YTrain, XTest, YTest, num_epochs=5000, save_session=True,
+                          save_file='./logs/modelBeta3.ckpt',minibatch_size=128)
     return parameters
 
 
 # 开始函数
 if __name__ == '__main__':
-    # getFea("D:\\trainmodels", './datasets/3dModelTrainBeta1.h5')
-    # getFea("D:\\testmodel10", './datasets/3dModelTestBeta1.h5')
-    # data, labels = h5utils.readH5File('./datasets/tt.h5')
+    getFea("D:\\ModelNet10\\train", './datasets/3dModelTrainBeta3.h5')
+    getFea("D:\\ModelNet10\\test", './datasets/3dModelTestBeta3.h5')
     # para = cnnTrain()
-    PD.predict('./model/bed_0459.off')
+    # PD.predict('./model/bed_0459.off')

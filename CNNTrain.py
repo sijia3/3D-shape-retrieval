@@ -31,20 +31,10 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
     X -- placeholder for the data input, of shape [None, n_H0, n_W0, n_C0] and dtype "float"
     Y -- placeholder for the input labels, of shape [None, n_y] and dtype "float"
     """
-
-    ### START CODE HERE ### (≈2 lines)
     X = tf.placeholder('float', shape=[None, n_H0, n_W0, n_C0])
     Y = tf.placeholder('float', shape=[None, n_y])
-    ### END CODE HERE ###
 
     return X, Y
-
-# X, Y = create_placeholders(64, 64, 3, 10)
-# print ("X = " + str(X))
-# print ("Y = " + str(Y))
-
-
-# GRADED FUNCTION: initialize_parameters
 
 # 初始化参数
 def initialize_parameters():
@@ -56,28 +46,15 @@ def initialize_parameters():
     parameters -- a dictionary of tensors containing W1, W2
     """
 
-    tf.set_random_seed(1)  # so that your "random" numbers match ours
-
-    ### START CODE HERE ### (approx. 2 lines of code)
+    # tf.set_random_seed(1)  # so that your "random" numbers match ours
     W1 = tf.get_variable("W1", [4, 4, 3, 8], initializer=tf.contrib.layers.xavier_initializer(seed=0))
     W2 = tf.get_variable("W2", [2, 2, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    ### END CODE HERE ###
 
     parameters = {"W1": W1,
                   "W2": W2}
 
     return parameters
 
-# tf.reset_default_graph()
-# with tf.Session() as sess_test:
-#     parameters = initialize_parameters()
-#     init = tf.global_variables_initializer()
-#     sess_test.run(init)
-#     print("W1 = " + str(parameters["W1"].eval()[1,1,1]))
-#     print("W2 = " + str(parameters["W2"].eval()[1,1,1]))
-
-
-# GRADED FUNCTION: forward_propagation
 
 def forward_propagation(X, parameters):
     """
@@ -117,25 +94,9 @@ def forward_propagation(X, parameters):
     print(P2)
     # Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
     Z3 = tf.contrib.layers.fully_connected(P2, 32)
-
     Z4 = tf.contrib.layers.fully_connected(Z3, 10, activation_fn=None)
 
     return Z4
-# tf.reset_default_graph()
-
-# with tf.Session() as sess:
-#     np.random.seed(1)
-#     X, Y = create_placeholders(64, 64, 3, 10)
-# #     print(X.shape)
-#     parameters = initialize_parameters()
-#     Z3 = forward_propagation(X, parameters)
-#     init = tf.global_variables_initializer()
-#     sess.run(init)
-#     a = sess.run(Z3, {X: np.random.randn(2,64,64,3), Y: np.random.randn(2,6)})
-#     print("Z3 = " + str(a))
-
-
-# GRADED FUNCTION: compute_cost
 
 def compute_cost(Z3, Y):
     """
@@ -150,22 +111,7 @@ def compute_cost(Z3, Y):
     """
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=Z3, labels=Y))
     return cost
-#
-# tf.reset_default_graph()
-#
-# with tf.Session() as sess:
-#     np.random.seed(1)
-#     X, Y = create_placeholders(64, 64, 3, 6)
-#     parameters = initialize_parameters()
-#     Z3 = forward_propagation(X, parameters)
-#     cost = compute_cost(Z3, Y)
-#     init = tf.global_variables_initializer()
-#     sess.run(init)
-#     a = sess.run(cost, {X: np.random.randn(4,64,64,3), Y: np.random.randn(4,6)})
-#     print("cost = " + str(a))
-#
-#
-# GRADED FUNCTION: model
+
 
 def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
           num_epochs=500, minibatch_size=64, print_cost=True, save_session= False, save_file='./logs/modelBeta1.ckpt'):
@@ -190,7 +136,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
     """
 
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
-    tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
+    # tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
     seed = 3  # to keep results consistent (numpy seed)
     (m, n_H0, n_W0, n_C0) = X_train.shape
     n_y = Y_train.shape[1]
@@ -224,7 +170,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
         # Do the training loop
         for epoch in range(num_epochs):
-
+            # _, temp_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
             minibatch_cost = 0.
             num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
             seed = seed + 1
@@ -239,7 +185,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
                 minibatch_cost += temp_cost / num_minibatches
 
             # Print the cost every epoch
-            if print_cost == True and epoch % 5 == 0:
+            if print_cost is True and epoch % 5 == 0:
                 print("Cost after epoch %i: %f" % (epoch, minibatch_cost))
                 predict_op = tf.argmax(Z3, 1)  # 返回每行最大值的索引值
                 # print(predict_op.eval({X: X_train}))
@@ -251,7 +197,11 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
                 test_accuracy = accuracy.eval({X: X_test, Y: Y_test})
                 print("Train Accuracy:", train_accuracy)
                 print("Test Accuracy:", test_accuracy)
-            if print_cost == True and epoch % 1 == 0:
+                if save_session is True:
+                    save_files = './session/model_forloop'+str(epoch)+'.ckpt'
+                    saver.save(sess, save_files)
+                    print("模型保存成功.")
+            if print_cost is True and epoch % 1 == 0:
                 costs.append(minibatch_cost)
         # plot the cost
         # plt.plot(np.squeeze(costs))
@@ -260,9 +210,9 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
         # plt.title("Learning rate =" + str(learning_rate))
         # plt.show()
 
-        if save_session == True:
-            saver.save(sess, save_file)
-            print("模型保存成功.")
+        # if save_session == True:
+        #     saver.save(sess, save_file)
+        #     print("模型保存成功.")
         return parameters
 
 def loadDataSets():
