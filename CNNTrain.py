@@ -93,7 +93,7 @@ def forward_propagation(X, parameters):
     # 6 neurons in output layer. Hint: one of the arguments should be "activation_fn=None"
     print(P2)
     # Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
-    Z3 = tf.contrib.layers.fully_connected(P2, 32)
+    Z3 = tf.contrib.layers.fully_connected(P2, 50)
     Z4 = tf.contrib.layers.fully_connected(Z3, 10, activation_fn=None)
 
     return Z4
@@ -200,7 +200,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
                 if save_session is True:
                     save_files = './session/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_files)
-                    print("模型保存成功.")
+                    print("模型"+save_files+"保存成功.")
             if print_cost is True and epoch % 1 == 0:
                 costs.append(minibatch_cost)
         # plot the cost

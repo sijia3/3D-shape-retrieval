@@ -125,7 +125,7 @@ def forward_propagation(X, parameters):
     # 6 neurons in output layer. Hint: one of the arguments should be "activation_fn=None"
     print(P2)
     # Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
-    Z3 = tf.contrib.layers.fully_connected(P2, 32)
+    Z3 = tf.contrib.layers.fully_connected(P2, 50)
 
     Z4 = tf.contrib.layers.fully_connected(Z3, 10, activation_fn=None)
 
@@ -199,7 +199,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
     """
 
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
-    tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
+    # tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
     seed = 3  # to keep results consistent (numpy seed)
     (m, n_H0, n_W0, n_C0) = X_train.shape
     n_y = Y_train.shape[1]
@@ -263,7 +263,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
                 if save_session == True:
                     save_file = './another/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_file)
-                    # print("模型保存成功.")
+                    print(save_file+"模型保存成功.")
             if print_cost is True and epoch % 1 == 0:
                 costs.append(cost)
         return parameters
