@@ -233,7 +233,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
         # Do the training loop
         for epoch in range(num_epochs):
-            sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
+            _, temp_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
             # minibatch_cost = 0.
             # num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
             # seed = seed + 1
@@ -249,7 +249,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
             # Print the cost every epoch
             if print_cost == True and epoch % 5 == 0:
-                print("Cost after epoch %i: %f" % (epoch, cost))
+                print("Cost after epoch %i: %f" % (epoch, temp_cost))
                 predict_op = tf.argmax(Z3, 1)  # 返回每行最大值的索引值
                 # print(predict_op.eval({X: X_train}))
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
@@ -265,7 +265,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
                     saver.save(sess, save_file)
                     print(save_file+"模型保存成功.")
             if print_cost is True and epoch % 1 == 0:
-                costs.append(cost)
+                costs.append(temp_cost)
         return parameters
 
 
@@ -274,5 +274,5 @@ if __name__ == '__main__':
     trainFile = './datasets/3dModelTrainBeta3.h5'
     testFile = './datasets/3dModelTestBeta3.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
-    parameters = CT.model(XTrain, YTrain, XTest, YTest, num_epochs=5000, save_session=True,
+    parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=7000, save_session=True,
                           save_file='./logs/modelBeta33.ckpt')
