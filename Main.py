@@ -23,8 +23,8 @@ def cnnTrain():
     trainFile = './datasets/3dModelTrainBeta3.h5'
     testFile = './datasets/3dModelTestBeta3.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
-    parameters = CT.model(XTrain, YTrain, XTest, YTest, num_epochs=7000, save_session=True,
-                          save_file='./logs/modelBeta3.ckpt',minibatch_size=128)
+    parameters = CT.model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=True,
+                          save_file='./logs/modelBeta3.ckpt',minibatch_size=64)
     return parameters
 
 

@@ -36,22 +36,18 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
 
     return X, Y
 
+
 # 初始化参数
 def initialize_parameters():
-    """
-    Initializes weight parameters to build a neural network with tensorflow. The shapes are:
-                        W1 : [4, 4, 3, 8]
-                        W2 : [2, 2, 8, 16]
-    Returns:
-    parameters -- a dictionary of tensors containing W1, W2
-    """
-
     # tf.set_random_seed(1)  # so that your "random" numbers match ours
-    W1 = tf.get_variable("W1", [4, 4, 3, 8], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    W2 = tf.get_variable("W2", [2, 2, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W1 = tf.get_variable("W1", [5, 5, 3, 8], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W2 = tf.get_variable("W2", [4, 4, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W3 = tf.get_variable("W3", [2, 2, 16, 32], initializer=tf.contrib.layers.xavier_initializer(seed=0))
 
     parameters = {"W1": W1,
-                  "W2": W2}
+                  "W2": W2,
+                  "W3": W3
+                  }
 
     return parameters
 
@@ -73,30 +69,52 @@ def forward_propagation(X, parameters):
     # Retrieve the parameters from the dictionary "parameters"
     W1 = parameters['W1']
     W2 = parameters['W2']
+    W3 = parameters['W3']
 
-    ### START CODE HERE ###
     # CONV2D: stride of 1, padding 'SAME'
-    Z1 = tf.nn.conv2d(X, W1, strides=[1, 1, 1, 1], padding='SAME')
+    Z1 = tf.nn.conv2d(X, W1, strides=[1, 1, 1, 1], padding='VALID')
+    print(Z1)
     # RELU
     A1 = tf.nn.relu(Z1)
     # MAXPOOL: window 8x8, sride 8, padding 'SAME'
-    P1 = tf.nn.max_pool(A1, ksize=[1, 8, 8, 1], strides=[1, 8, 8, 1], padding='SAME')
+    P1 = tf.nn.max_pool(A1, ksize=[1, 3, 3, 1], strides=[1, 3, 3, 1], padding='VALID')
+    print(P1)
+
+
     # CONV2D: filters W2, stride 1, padding 'SAME'
     Z2 = tf.nn.conv2d(P1, W2, strides=[1, 1, 1, 1], padding='SAME')
+    print(Z2)
     # RELU
     A2 = tf.nn.relu(Z2)
     # MAXPOOL: window 4x4, stride 4, padding 'SAME'
-    P2 = tf.nn.max_pool(A2, ksize=[1, 4, 4, 1], strides=[1, 4, 4, 1], padding='SAME')
+    P2 = tf.nn.max_pool(A2, ksize=[1, 3, 3, 1], strides=[1, 3, 3, 1], padding='SAME')
+    print(P2)
+
+    # CONV2D: filters W2, stride 1, padding 'SAME'
+    Z3 = tf.nn.conv2d(P2, W3, strides=[1, 1, 1, 1], padding='SAME')
+    print(Z3)
+    # RELU
+    A3 = tf.nn.relu(Z3)
+    # MAXPOOL: window 4x4, stride 4, padding 'SAME'
+    P3 = tf.nn.max_pool(A3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+    print(P3)
+
+
+
     # FLATTEN
-    P2 = tf.contrib.layers.flatten(P2)
+    P4 = tf.contrib.layers.flatten(P3)
     # FULLY-CONNECTED without non-linear activation function (not not call softmax).
     # 6 neurons in output layer. Hint: one of the arguments should be "activation_fn=None"
-    print(P2)
+    print(P4)
     # Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
-    Z3 = tf.contrib.layers.fully_connected(P2, 50)
-    Z4 = tf.contrib.layers.fully_connected(Z3, 10, activation_fn=None)
+    L4_drop = tf.nn.dropout(P4, keep_prob=0.6)           # drop 减少过拟合
+    print(L4_drop)
 
-    return Z4
+    Z4 = tf.contrib.layers.fully_connected(L4_drop, 128, activation_fn=tf.nn.relu)
+    L5_drop = tf.nn.dropout(Z4, keep_prob=0.6)
+    print(L5_drop)
+    Z5 = tf.contrib.layers.fully_connected(L5_drop, 10, activation_fn=None)
+    return Z5
 
 def compute_cost(Z3, Y):
     """
@@ -170,7 +188,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
         # Do the training loop
         for epoch in range(num_epochs):
-            # _, temp_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
+            # _, minibatch_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
             minibatch_cost = 0.
             num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
             seed = seed + 1
@@ -215,16 +233,16 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
         #     print("模型保存成功.")
         return parameters
 
-def loadDataSets():
-    XTrain = GF.readH5File('./datasets/train_model.h5', 'data')
-    YLabels = GF.readH5File('./datasets/train_labels.h5', 'labels')
-    YLabels = YLabels.reshape(1, len(YLabels)).astype('int64')
-    YLabels = GF.convert_to_one_hot(YLabels, 10).T
-    XTest = GF.readH5File('./datasets/test_model.h5', 'data')
-    YTestLabels = GF.readH5File('./datasets/test_labels.h5', 'labels')
-    YTestLabels = YTestLabels.reshape(1, len(YTestLabels)).astype('int64')
-    YTestLabels = GF.convert_to_one_hot(YTestLabels, 10).T
-    return XTrain, YLabels, XTest, YTestLabels
+# def loadDataSets():
+#     XTrain = GF.readH5File('./datasets/train_model.h5', 'data')
+#     YLabels = GF.readH5File('./datasets/train_labels.h5', 'labels')
+#     YLabels = YLabels.reshape(1, len(YLabels)).astype('int64')
+#     YLabels = GF.convert_to_one_hot(YLabels, 10).T
+#     XTest = GF.readH5File('./datasets/test_model.h5', 'data')
+#     YTestLabels = GF.readH5File('./datasets/test_labels.h5', 'labels')
+#     YTestLabels = YTestLabels.reshape(1, len(YTestLabels)).astype('int64')
+#     YTestLabels = GF.convert_to_one_hot(YTestLabels, 10).T
+#     return XTrain, YLabels, XTest, YTestLabels
 
 
 # if __name__ == '__main__':
