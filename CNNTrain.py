@@ -40,19 +40,21 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
 # 初始化参数
 def initialize_parameters():
     # tf.set_random_seed(1)  # so that your "random" numbers match ours
-    W1 = tf.get_variable("W1", [5, 5, 3, 8], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    W2 = tf.get_variable("W2", [4, 4, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    W3 = tf.get_variable("W3", [2, 2, 16, 32], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W1 = tf.get_variable("W1", [4, 4, 3, 4], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W2 = tf.get_variable("W2", [4, 4, 4, 8], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W3 = tf.get_variable("W3", [2, 2, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W4 = tf.get_variable("W4", [2, 2, 16, 32], initializer=tf.contrib.layers.xavier_initializer(seed=0))
 
     parameters = {"W1": W1,
                   "W2": W2,
-                  "W3": W3
+                  "W3": W3,
+                  "W4": W4
                   }
 
     return parameters
 
 
-def forward_propagation(X, parameters):
+def forward_propagation(X, parameters, m):
     """
     Implements the forward propagation for the model:
     CONV2D -> RELU -> MAXPOOL -> CONV2D -> RELU -> MAXPOOL -> FLATTEN -> FULLYCONNECTED
@@ -70,14 +72,15 @@ def forward_propagation(X, parameters):
     W1 = parameters['W1']
     W2 = parameters['W2']
     W3 = parameters['W3']
+    W4 = parameters['W4']
 
     # CONV2D: stride of 1, padding 'SAME'
-    Z1 = tf.nn.conv2d(X, W1, strides=[1, 1, 1, 1], padding='VALID')
+    Z1 = tf.nn.conv2d(X, W1, strides=[1, 1, 1, 1], padding='SAME')
     print(Z1)
     # RELU
     A1 = tf.nn.relu(Z1)
     # MAXPOOL: window 8x8, sride 8, padding 'SAME'
-    P1 = tf.nn.max_pool(A1, ksize=[1, 3, 3, 1], strides=[1, 3, 3, 1], padding='VALID')
+    P1 = tf.nn.max_pool(A1, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME')
     print(P1)
 
 
@@ -87,7 +90,7 @@ def forward_propagation(X, parameters):
     # RELU
     A2 = tf.nn.relu(Z2)
     # MAXPOOL: window 4x4, stride 4, padding 'SAME'
-    P2 = tf.nn.max_pool(A2, ksize=[1, 3, 3, 1], strides=[1, 3, 3, 1], padding='SAME')
+    P2 = tf.nn.max_pool(A2, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='SAME')
     print(P2)
 
     # CONV2D: filters W2, stride 1, padding 'SAME'
@@ -99,22 +102,42 @@ def forward_propagation(X, parameters):
     P3 = tf.nn.max_pool(A3, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
     print(P3)
 
+    # CONV2D: filters W2, stride 1, padding 'SAME'
+    Z4 = tf.nn.conv2d(P3, W4, strides=[1, 1, 1, 1], padding='SAME')
+    print(Z4)
+    # RELU
+    A4 = tf.nn.relu(Z4)
+    # MAXPOOL: window 4x4, stride 4, padding 'SAME'
+    P4 = tf.nn.max_pool(A4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
+    print(P4.get_shape().as_list(), m)
 
+    pool_shape = P4.get_shape().as_list()
+    nodes = pool_shape[1] * pool_shape[2]* pool_shape[3]
+    reshaped = tf.reshape(P4, [pool_shape[0], nodes])
 
-    # FLATTEN
-    P4 = tf.contrib.layers.flatten(P3)
-    # FULLY-CONNECTED without non-linear activation function (not not call softmax).
-    # 6 neurons in output layer. Hint: one of the arguments should be "activation_fn=None"
-    print(P4)
-    # Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
-    L4_drop = tf.nn.dropout(P4, keep_prob=0.6)           # drop 减少过拟合
-    print(L4_drop)
+    fc1_weights = tf.get_variable("weight1", [nodes, 128], initializer=tf.truncated_normal_initializer(stddev=0.1))
+    fc1_biases = tf.get_variable("bias1", [128], initializer=tf.constant_initializer(0.1))
+    fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
+    fc1 = tf.nn.dropout(fc1, 0.5)
 
-    Z4 = tf.contrib.layers.fully_connected(L4_drop, 128, activation_fn=tf.nn.relu)
-    L5_drop = tf.nn.dropout(Z4, keep_prob=0.6)
-    print(L5_drop)
-    Z5 = tf.contrib.layers.fully_connected(L5_drop, 10, activation_fn=None)
-    return Z5
+    fc2_weights = tf.get_variable("weight2", [128, 10], initializer=tf.truncated_normal_initializer(stddev=0.1))
+    fc2_biases = tf.get_variable("bias2", [10], initializer=tf.constant_initializer(0.1))
+    logit = (tf.matmul(fc1, fc2_weights)+fc2_biases)
+
+    # # FLATTEN
+    # P5 = tf.contrib.layers.flatten(P4)
+    # # FULLY-CONNECTED without non-linear activation function (not not call softmax).
+    # # 6 neurons in output layer. Hint: one of the arguments should be "activation_fn=None"
+    # print(P5)
+    # # Z3 = tf.contrib.layers.fully_connected(P2, 10, activation_fn=None)
+    # # L4_drop = tf.nn.dropout(P5, keep_prob=0.5)           # drop 减少过拟合
+    # # print(L4_drop)
+    #
+    # Z4 = tf.contrib.layers.fully_connected(P5, 128, activation_fn=tf.nn.relu)
+    # # L5_drop = tf.nn.dropout(Z4, keep_prob=0.5)
+    # # print(L5_drop)
+    # Z5 = tf.contrib.layers.fully_connected(Z4, 10, activation_fn=None)
+    return logit
 
 def compute_cost(Z3, Y):
     """
@@ -127,7 +150,9 @@ def compute_cost(Z3, Y):
     Returns:
     cost - Tensor of the cost function
     """
+
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=Z3, labels=Y))
+
     return cost
 
 
@@ -167,11 +192,13 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
     parameters = initialize_parameters()
 
     # Forward propagation: Build the forward propagation in the tensorflow graph
-    Z3 = forward_propagation(X, parameters)
+    Z3 = forward_propagation(X, parameters, m)
 
     # Cost function: Add cost function to tensorflow graph
     cost = compute_cost(Z3, Y)
-
+    # regularizer = tf.contrib.layers.l2_regularizer(0.001)
+    # regularization = regularizer(parameters["W3"])+regularizer(parameters['W4'])
+    # loss = cost + regularization
     # Backpropagation: Define the tensorflow optimizer. Use an AdamOptimizer that minimizes the cost.
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
 
@@ -188,19 +215,19 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
         # Do the training loop
         for epoch in range(num_epochs):
-            # _, minibatch_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
-            minibatch_cost = 0.
-            num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
-            seed = seed + 1
-            minibatches = CNNUtils.random_mini_batches(X_train, Y_train, minibatch_size, seed)
-
-            for minibatch in minibatches:
-                # Select a minibatch
-                (minibatch_X, minibatch_Y) = minibatch
-                # IMPORTANT: The line that runs the graph on a minibatch.
-                # Run the session to execute the optimizer and the cost, the feedict should contain a minibatch for (X,Y).
-                _, temp_cost = sess.run([optimizer, cost], feed_dict={X: minibatch_X, Y: minibatch_Y})
-                minibatch_cost += temp_cost / num_minibatches
+            _, minibatch_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
+            # minibatch_cost = 0.
+            # num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
+            # seed = seed + 1
+            # minibatches = CNNUtils.random_mini_batches(X_train, Y_train, minibatch_size, seed)
+            #
+            # for minibatch in minibatches:
+            #     # Select a minibatch
+            #     (minibatch_X, minibatch_Y) = minibatch
+            #     # IMPORTANT: The line that runs the graph on a minibatch.
+            #     # Run the session to execute the optimizer and the cost, the feedict should contain a minibatch for (X,Y).
+            #     _, temp_cost = sess.run([optimizer, cost], feed_dict={X: minibatch_X, Y: minibatch_Y})
+            #     minibatch_cost += temp_cost / num_minibatches
 
             # Print the cost every epoch
             if print_cost is True and epoch % 5 == 0:
