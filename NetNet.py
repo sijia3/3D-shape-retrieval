@@ -117,6 +117,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
     # tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
     seed = 3  # to keep results consistent (numpy seed)
     (m, n_H0, n_W0, n_C0) = X_train.shape
+    m_test = X_train.shape[0]
+
     n_y = Y_train.shape[1]
     costs = []  # To keep track of the cost
     num = tf.placeholder(tf.int32)
@@ -154,7 +156,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
                 train_accuracy = accuracy.eval({X: X_train, Y: Y_train, num: m})
-                test_accuracy = accuracy.eval({X: X_test, Y: Y_test, num: 100})
+                test_accuracy = accuracy.eval({X: X_test, Y: Y_test, num: m_test})
                 print("Train Accuracy:", train_accuracy)
                 print("Test Accuracy:", test_accuracy)
                 if save_session is True:
@@ -167,9 +169,9 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
 
 def cnnTrain():
     trainFile = './datasets/3dModelTrainBeta3.h5'
-    testFile = './datasets/3dModelTestBeta3Plus.h5'
+    testFile = './datasets/3dModelTestBeta3.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
-    parameters = CT.model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=False,
+    parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=False,
                           minibatch_size=64)
     return parameters
 if __name__ == '__main__':
