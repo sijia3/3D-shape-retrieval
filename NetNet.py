@@ -117,7 +117,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
     # tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
     seed = 3  # to keep results consistent (numpy seed)
     (m, n_H0, n_W0, n_C0) = X_train.shape
-    m_test = X_train.shape[0]
+    m_test = X_test.shape[0]
 
     n_y = Y_train.shape[1]
     costs = []  # To keep track of the cost
