@@ -10,6 +10,7 @@ import PlotVoxel
 import Tri2Vox
 import ReadOff
 from GetLabels import getLabels
+import H5FileUtils as h5utils
 
 
 def readH5File(filename, key):       # HDF5的读取
@@ -84,49 +85,23 @@ def getPics(vox, isInDepth = False):
             if y>63:
                 y = 63
             pic[x][y] += 1.0
+            # pic[x][y] = 0.0           # 浅层图像
         pics.append(pic)
     pics = np.array(pics).transpose(2, 1, 0)
     return pics
 
 
-# def writeH5(filename, voxs, labels=[]):
-#     """
-#
-#     :param filename:
-#     :param voxs:
-#     :param labels:
-#     :return:
-#     """
-#     # labels = np.array([[i for i in range(1, 12)]])
-#     # HDF5的写入：
-#     # (h, w) = voxs.shape
-#     # imgData = np.ones((1000,64,64,3))
-#     print("开始写入文件》》》》》")
-#     f = h5py.File(filename,'w')   # 创建一个h5文件，文件指针是f
-#     f['data'] = voxs                 # 将数据写入文件的主键data下面
-#
-#     f['labels'] = labels           # 将数据写入文件的主键labels下面
-#     print("写入结束《《《《《《")
-#     f.close()
-
 def convert_to_one_hot(Y, C):    # 标签转换
     Y = np.eye(C)[Y.reshape(-1)].T
     return Y
 
-# if __name__ == '__main__':
-#     feature = getFeature("D:\\trainmodels")
-    # labels = getLabels("D:\\testmodels")
-    # writeH5('./datasets/test_model.h5', feature)
-    # Y = convert_to_one_hot(labels, 10)
-    # a = readH5File("./datasets/train_labels.h5", 'labels')
-    # Y = convert_to_one_hot(a, 10)
+def getFea(dir, filename):
+    vox = getFeature(dir)
+    labels = getLabels(dir)
+    h5utils.writeH5(filename, vox, labels)
 
-    # startTime = time.time()
-    # verts, faces = ReadOff.readOff("./model/bathtub_0001.off")
-    # vox = Tri2Vox.Tri2Vox(verts, faces, 32)
-    # pics = getPics(vox, isInDepth=True)
-    # stopTime = time.time()
-    # print("需要花费：", stopTime-startTime)
-    # plt.imshow(pics[:, :, 0]
 
+if __name__ == '__main__':
+    # getFea("D:\\ModelNet10\\train", './datasets/3dModelTrainBeta1Shallow.h5')
+    getFea("D:\\ModelNet10\\test", './datasets/3dModelTestBeta3Plus.h5')
 

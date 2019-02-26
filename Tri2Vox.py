@@ -60,7 +60,7 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
                     innerV = innerV + stepV[2, :]      # BC向量的方向延申
                     innerSet = np.vstack((innerSet, innerV))
                 vSet = np.vstack((vSet, innerSet))
-            vSet = np.floor(vSet)                        # 向xia取整
+            vSet = np.floor(vSet)                        # 向下取整
             vSet = np.unique(vSet, axis=0)          # 去重
             layoutVox = np.vstack((layoutVox, vSet))
     # endfor

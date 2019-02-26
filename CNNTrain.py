@@ -54,7 +54,7 @@ def initialize_parameters():
     return parameters
 
 
-def forward_propagation(X, parameters, m):
+def forward_propagation(X, parameters, num):
     """
     Implements the forward propagation for the model:
     CONV2D -> RELU -> MAXPOOL -> CONV2D -> RELU -> MAXPOOL -> FLATTEN -> FULLYCONNECTED
@@ -67,7 +67,6 @@ def forward_propagation(X, parameters, m):
     Returns:
     Z3 -- the output of the last LINEAR unit
     """
-
     # Retrieve the parameters from the dictionary "parameters"
     W1 = parameters['W1']
     W2 = parameters['W2']
@@ -109,16 +108,16 @@ def forward_propagation(X, parameters, m):
     A4 = tf.nn.relu(Z4)
     # MAXPOOL: window 4x4, stride 4, padding 'SAME'
     P4 = tf.nn.max_pool(A4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='SAME')
-    print(P4.get_shape().as_list(), m)
+    print(P4.get_shape().as_list(), num)
 
     pool_shape = P4.get_shape().as_list()
     nodes = pool_shape[1] * pool_shape[2]* pool_shape[3]
-    reshaped = tf.reshape(P4, [pool_shape[0], nodes])
+    reshaped = tf.reshape(P4, [num, nodes])
 
     fc1_weights = tf.get_variable("weight1", [nodes, 128], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc1_biases = tf.get_variable("bias1", [128], initializer=tf.constant_initializer(0.1))
     fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
-    fc1 = tf.nn.dropout(fc1, 0.5)
+    # fc1 = tf.nn.dropout(fc1, 0.5)
 
     fc2_weights = tf.get_variable("weight2", [128, 10], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc2_biases = tf.get_variable("bias2", [10], initializer=tf.constant_initializer(0.1))
@@ -137,7 +136,7 @@ def forward_propagation(X, parameters, m):
     # # L5_drop = tf.nn.dropout(Z4, keep_prob=0.5)
     # # print(L5_drop)
     # Z5 = tf.contrib.layers.fully_connected(Z4, 10, activation_fn=None)
-    return logit
+    return logit, fc1_weights, fc2_weights
 
 def compute_cost(Z3, Y):
     """
@@ -185,6 +184,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
     n_y = Y_train.shape[1]
     costs = []  # To keep track of the cost
 
+    num = tf.placeholder(tf.int32)
     # Create Placeholders of the correct shape
     X, Y = create_placeholders(n_H0, n_W0, n_C0, n_y)
 
@@ -192,15 +192,15 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
     parameters = initialize_parameters()
 
     # Forward propagation: Build the forward propagation in the tensorflow graph
-    Z3 = forward_propagation(X, parameters, m)
+    Z3, fc1w, fc2w = forward_propagation(X, parameters, num)
 
     # Cost function: Add cost function to tensorflow graph
     cost = compute_cost(Z3, Y)
-    # regularizer = tf.contrib.layers.l2_regularizer(0.001)
-    # regularization = regularizer(parameters["W3"])+regularizer(parameters['W4'])
-    # loss = cost + regularization
+    regularizer = tf.contrib.layers.l2_regularizer(0.1)
+    regularization = regularizer(fc1w)+regularizer(fc2w)
+    loss = cost + regularization
     # Backpropagation: Define the tensorflow optimizer. Use an AdamOptimizer that minimizes the cost.
-    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
+    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(loss)
 
     # Initialize all the variables globally
     init = tf.global_variables_initializer()
@@ -215,7 +215,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
         # Do the training loop
         for epoch in range(num_epochs):
-            _, minibatch_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train})
+            _, minibatch_cost = sess.run([optimizer, cost], feed_dict={X: X_train, Y: Y_train, num: m})
             # minibatch_cost = 0.
             # num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
             # seed = seed + 1
@@ -238,8 +238,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
                 # Calculate accuracy on the test set
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
                 # print(accuracy.eval())
-                train_accuracy = accuracy.eval({X: X_train, Y: Y_train})
-                test_accuracy = accuracy.eval({X: X_test, Y: Y_test})
+                train_accuracy = accuracy.eval({X: X_train, Y: Y_train, num: m})
+                test_accuracy = accuracy.eval({X: X_test, Y: Y_test, num: 100})
                 print("Train Accuracy:", train_accuracy)
                 print("Test Accuracy:", test_accuracy)
                 if save_session is True:
