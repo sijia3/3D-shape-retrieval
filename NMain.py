@@ -276,7 +276,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
 
 if __name__ == '__main__':
     trainFile = './datasets/3dModelTrainBeta3.h5'
-    testFile = './datasets/3dModelTestBeta3.h5'
+    testFile = './datasets/3dModelTestBeta3Plus.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
-    parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=7000, save_session=True,
+    parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=7000, save_session=False,
                           save_file='./logs/modelBeta33.ckpt')

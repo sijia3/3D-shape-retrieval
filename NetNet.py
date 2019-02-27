@@ -19,19 +19,7 @@ import CNNTrain as CT
 
 # 创建占位符
 def create_placeholders(n_H0, n_W0, n_C0, n_y):
-    """
-    Creates the placeholders for the tensorflow session.
 
-    Arguments:
-    n_H0 -- scalar, height of an input image
-    n_W0 -- scalar, width of an input image
-    n_C0 -- scalar, number of channels of the input
-    n_y -- scalar, number of classes
-
-    Returns:
-    X -- placeholder for the data input, of shape [None, n_H0, n_W0, n_C0] and dtype "float"
-    Y -- placeholder for the input labels, of shape [None, n_y] and dtype "float"
-    """
     X = tf.placeholder('float', shape=[None, n_H0, n_W0, n_C0])
     Y = tf.placeholder('float', shape=[None, n_y])
 
@@ -88,7 +76,7 @@ def forward_propagation(X, parameters, num):
     # MAXPOOL: window 4x4, stride 4, padding 'SAME'
     P3 = tf.nn.max_pool(A3, ksize=[1, 3, 3, 1], strides=[1, 3, 3, 1], padding='VALID')
     # print(P3)
-    print(P3.get_shape().as_list(), num)
+    print(P3.get_shape().as_list())
 
     pool_shape = P3.get_shape().as_list()
     nodes = pool_shape[1] * pool_shape[2]* pool_shape[3]
@@ -97,7 +85,7 @@ def forward_propagation(X, parameters, num):
     fc1_weights = tf.get_variable("weight1", [nodes, 64], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc1_biases = tf.get_variable("bias1", [64], initializer=tf.constant_initializer(0.1))
     fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
-    if num != 100:        # 防止过拟合
+    if num != 290:        # 防止过拟合
         fc1 = tf.nn.dropout(fc1, 0.5)
 
     fc2_weights = tf.get_variable("weight2", [64, 10], initializer=tf.truncated_normal_initializer(stddev=0.1))
@@ -118,7 +106,6 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
     seed = 3  # to keep results consistent (numpy seed)
     (m, n_H0, n_W0, n_C0) = X_train.shape
     m_test = X_test.shape[0]
-
     n_y = Y_train.shape[1]
     costs = []  # To keep track of the cost
     num = tf.placeholder(tf.int32)
@@ -126,7 +113,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
     parameters = initialize_parameters()
     Z3, fc1w, fc2w = forward_propagation(X, parameters, num)
     cost = compute_cost(Z3, Y)
-    # regularizer = tf.contrib.layers.l2_regularizer(0.05)
+    # 采用L2正则化，避免过拟合
+    # regularizer = tf.contrib.layers.l2_regularizer(0.09)
     # regularization = regularizer(fc1w)+regularizer(fc2w)
     # loss = cost + regularization
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost)
@@ -157,8 +145,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
                 train_accuracy = accuracy.eval({X: X_train, Y: Y_train, num: m})
                 test_accuracy = accuracy.eval({X: X_test, Y: Y_test, num: m_test})
-                print("Train Accuracy:", train_accuracy)
-                print("Test Accuracy:", test_accuracy)
+                print("训练集识别率:", train_accuracy)
+                print("测试集识别率:", test_accuracy)
                 if save_session is True:
                     save_files = './session/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_files)
@@ -167,13 +155,15 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
                 costs.append(minibatch_cost)
         return parameters
 
+
 def cnnTrain():
-    trainFile = './datasets/3dModelTrainBeta3.h5'
-    testFile = './datasets/3dModelTestBeta3.h5'
+    trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
+    testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
-    parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=False,
-                          minibatch_size=64)
+    parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=False)
     return parameters
+
+
 if __name__ == '__main__':
     # 三维模型测试
     cnnTrain()
