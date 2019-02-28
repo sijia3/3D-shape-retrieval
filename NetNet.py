@@ -115,13 +115,13 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
     Z3, fc1w, fc2w = forward_propagation(X, parameters, num)
     cost = compute_cost(Z3, Y)
     # 采用L2正则化，避免过拟合
-    # regularizer = tf.contrib.layers.l2_regularizer(0.001)
+    # regularizer = tf.contrib.layers.l2_regularizer(0.01)
     # regularization = regularizer(fc1w)+regularizer(fc2w)
     # loss = cost + regularization
     # 定义global_step
     global_step = tf.Variable(0, trainable=False)
     # 通过指数衰减函数来生成学习率
-    learning_rate = tf.train.exponential_decay(0.01, global_step, 100, 0.96, staircase=False)
+    learning_rate = tf.train.exponential_decay(0.01, global_step, 50, 0.96, staircase=False)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost, global_step)
     init = tf.global_variables_initializer()
     saver = tf.train.Saver()
@@ -143,7 +143,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
             #     minibatch_cost += temp_cost / num_minibatches
 
             # Print the cost every epoch
-            if print_cost is True and epoch % 1 == 0:
+            if print_cost is True and epoch % 5 == 0:
                 print("Cost after epoch %i: %f" % (epoch, minibatch_cost))
                 predict_op = tf.argmax(Z3, 1)  # 返回每行最大值的索引
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
