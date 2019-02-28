@@ -29,9 +29,9 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
 # 初始化参数
 def initialize_parameters():
     # tf.set_random_seed(1)  # so that your "random" numbers match ours
-    W1 = tf.get_variable("W1", [5, 5, 3, 6], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    W2 = tf.get_variable("W2", [5, 5, 6, 8], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    W3 = tf.get_variable("W3", [5, 5, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W1 = tf.get_variable("W1", [5, 5, 3, 6], initializer=tf.contrib.layers.xavier_initializer(seed=2))
+    W2 = tf.get_variable("W2", [5, 5, 6, 8], initializer=tf.contrib.layers.xavier_initializer(seed=2))
+    W3 = tf.get_variable("W3", [5, 5, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=2))
     # W4 = tf.get_variable("W4", [2, 2, 16, 32], initializer=tf.contrib.layers.xavier_initializer(seed=0))
 
     parameters = {"W1": W1,
@@ -81,12 +81,13 @@ def forward_propagation(X, parameters, num):
     pool_shape = P3.get_shape().as_list()
     nodes = pool_shape[1] * pool_shape[2]* pool_shape[3]
     reshaped = tf.reshape(P3, [num, nodes])
-
+    if num != 290:        # 防止过拟合
+        reshaped = tf.nn.dropout(reshaped, 0.80)
     fc1_weights = tf.get_variable("weight1", [nodes, 64], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc1_biases = tf.get_variable("bias1", [64], initializer=tf.constant_initializer(0.1))
     fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
-    # if num != 290:        # 防止过拟合
-    #     fc1 = tf.nn.dropout(fc1, 0.5)
+    if num != 290:        # 防止过拟合
+        fc1 = tf.nn.dropout(fc1, 0.66)
 
     fc2_weights = tf.get_variable("weight2", [64, 10], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc2_biases = tf.get_variable("bias2", [10], initializer=tf.constant_initializer(0.1))
@@ -99,7 +100,7 @@ def compute_cost(Z3, Y):
     return cost
 
 
-def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
+def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
           num_epochs=500, minibatch_size=64, print_cost=True, save_session= False, save_file='./logs/modelBeta1.ckpt'):
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
     # tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
@@ -114,10 +115,14 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
     Z3, fc1w, fc2w = forward_propagation(X, parameters, num)
     cost = compute_cost(Z3, Y)
     # 采用L2正则化，避免过拟合
-    regularizer = tf.contrib.layers.l2_regularizer(0.01)
-    regularization = regularizer(fc1w)+regularizer(fc2w)
-    loss = cost + regularization
-    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(loss)
+    # regularizer = tf.contrib.layers.l2_regularizer(0.001)
+    # regularization = regularizer(fc1w)+regularizer(fc2w)
+    # loss = cost + regularization
+    # 定义global_step
+    global_step = tf.Variable(0, trainable=False)
+    # 通过指数衰减函数来生成学习率
+    learning_rate = tf.train.exponential_decay(0.01, global_step, 100, 0.96, staircase=False)
+    optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost, global_step)
     init = tf.global_variables_initializer()
     saver = tf.train.Saver()
     with tf.Session() as sess:
@@ -138,7 +143,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
             #     minibatch_cost += temp_cost / num_minibatches
 
             # Print the cost every epoch
-            if print_cost is True and epoch % 5 == 0:
+            if print_cost is True and epoch % 1 == 0:
                 print("Cost after epoch %i: %f" % (epoch, minibatch_cost))
                 predict_op = tf.argmax(Z3, 1)  # 返回每行最大值的索引
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
@@ -156,23 +161,24 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.010,
         return parameters
 
 # 初期特殊取文件方法
-# def loadDataSets():
-#     XTrain = GF.readH5File('./datasets/train_model.h5', 'data')
-#     YLabels = GF.readH5File('./datasets/train_labels.h5', 'labels')
-#     YLabels = YLabels.reshape(1, len(YLabels)).astype('int64')
-#     YLabels = GF.convert_to_one_hot(YLabels, 10).T
-#     XTest = GF.readH5File('./datasets/test_model.h5', 'data')
-#     YTestLabels = GF.readH5File('./datasets/test_labels.h5', 'labels')
-#     YTestLabels = YTestLabels.reshape(1, len(YTestLabels)).astype('int64')
-#     YTestLabels = GF.convert_to_one_hot(YTestLabels, 10).T
-#     return XTrain, YLabels, XTest, YTestLabels
+def loadDataSets():
+    XTrain = GF.readH5File('./datasets/train_model.h5', 'data')
+    YLabels = GF.readH5File('./datasets/train_labels.h5', 'labels')
+    YLabels = YLabels.reshape(1, len(YLabels)).astype('int64')
+    YLabels = GF.convert_to_one_hot(YLabels, 10).T
+    XTest = GF.readH5File('./datasets/test_model.h5', 'data')
+    YTestLabels = GF.readH5File('./datasets/test_labels.h5', 'labels')
+    YTestLabels = YTestLabels.reshape(1, len(YTestLabels)).astype('int64')
+    YTestLabels = GF.convert_to_one_hot(YTestLabels, 10).T
+    return XTrain, YLabels, XTest, YTestLabels
 
 def cnnTrain():
     # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
-    trainFile = './datasets/3dModelTrainD.h5'
+    trainFile = './logs/3dModelTrainSBeta_1.h5'
     # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
-    testFile = './datasets/3dModelTestD.h5'
+    testFile = './logs/3dModelTestSBeta_1.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
+    # XTrain, YTrain, XTest, YTest = loadDataSets()
     parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=False)
     return parameters
 

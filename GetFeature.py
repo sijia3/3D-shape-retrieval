@@ -102,6 +102,6 @@ def getFea(dir, filename):
 
 
 if __name__ == '__main__':
-    getFea("D:\\ModelNet10\\train", './datasets/3dModelTrainD.h5')
-    getFea("D:\\ModelNet10\\test", './datasets/3dModelTestD.h5')
+    getFea("D:\\ModelNet10Plus\\train", './logs/3dModelTrainDBeta_1.h5')
+    getFea("D:\\ModelNet10Plus\\test", './logs/3dModelTestDBeta_1.h5')
 

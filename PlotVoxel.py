@@ -124,7 +124,7 @@ if __name__ == '__main__':
     # vox = np.array([[1,1,1]])
     # plotVoxel(vox=vox, boxSize=64)
     #
-    file_dir = "m0.off"
+    file_dir = "./model/chair_0027.off"
     verts, faces = ReadOff.readOffWithoutPca(file_dir)
     vox = Tri2Vox.Tri2Vox(verts, faces, 32)
     pics = []
