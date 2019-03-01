@@ -81,13 +81,13 @@ def forward_propagation(X, parameters, num, isTrain=True):
     pool_shape = P3.get_shape().as_list()
     nodes = pool_shape[1] * pool_shape[2]* pool_shape[3]
     reshaped = tf.reshape(P3, [num, nodes])
-    if isTrain:        # 防止过拟合
-        reshaped = tf.nn.dropout(reshaped, 0.80)
+    # if isTrain:        # 防止过拟合
+    #     reshaped = tf.nn.dropout(reshaped, 0.80)
     fc1_weights = tf.get_variable("weight1", [nodes, 64], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc1_biases = tf.get_variable("bias1", [64], initializer=tf.constant_initializer(0.1))
     fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
-    if isTrain:        # 防止过拟合
-        fc1 = tf.nn.dropout(fc1, 0.66)
+    # if isTrain:        # 防止过拟合
+    #     fc1 = tf.nn.dropout(fc1, 0.66)
 
     fc2_weights = tf.get_variable("weight2", [64, 10], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc2_biases = tf.get_variable("bias2", [10], initializer=tf.constant_initializer(0.1))
@@ -116,13 +116,13 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
     Z3, fc1w, fc2w = forward_propagation(X, parameters, num)
     cost = compute_cost(Z3, Y)
     # 采用L2正则化，避免过拟合
-    # regularizer = tf.contrib.layers.l2_regularizer(0.004)
-    # regularization = regularizer(fc1w)+regularizer(fc2w)
-    # cost = cost + regularization
+    regularizer = tf.contrib.layers.l2_regularizer(0.010)
+    regularization = regularizer(fc1w)+regularizer(fc2w)
+    cost = cost + regularization
     # 定义global_step
     global_step = tf.Variable(0, trainable=False)
     # 通过指数衰减函数来生成学习率
-    learning_rate = tf.train.exponential_decay(0.001, global_step, 50, 0.96, staircase=False)
+    learning_rate = tf.train.exponential_decay(0.0005, global_step, 100, 0.96, staircase=False)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost, global_step)
     init = tf.global_variables_initializer()
     saver = tf.train.Saver()
