@@ -30,7 +30,8 @@ def cnnTrain():
 
 # 开始函数
 if __name__ == '__main__':
-    getFea("D:\\ModelNet10\\train", './datasets/3dModelTrainBeta1Shallow.h5')
-    getFea("D:\\ModelNet10\\test", './datasets/3dModelTestBeta1Shallow.h5')
+    # getFea("D:\\ModelNet10\\train", './datasets/3dModelTrainBeta1Shallow.h5')
+    # getFea("D:\\ModelNet10\\test", './datasets/3dModelTestBeta1Shallow.h5')
     # para = cnnTrain()
     # PD.predict('./model/bed_0459.off')
+    a, b = h5utils.readH5File('./datasets/3dModelTrainBeta3.h5')

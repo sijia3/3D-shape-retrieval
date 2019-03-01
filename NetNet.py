@@ -43,7 +43,7 @@ def initialize_parameters():
     return parameters
 
 
-def forward_propagation(X, parameters, num):
+def forward_propagation(X, parameters, num, isTrain=True):
     # Retrieve the parameters from the dictionary "parameters"
     W1 = parameters['W1']
     W2 = parameters['W2']
@@ -81,12 +81,12 @@ def forward_propagation(X, parameters, num):
     pool_shape = P3.get_shape().as_list()
     nodes = pool_shape[1] * pool_shape[2]* pool_shape[3]
     reshaped = tf.reshape(P3, [num, nodes])
-    if num != 290:        # 防止过拟合
+    if isTrain:        # 防止过拟合
         reshaped = tf.nn.dropout(reshaped, 0.80)
     fc1_weights = tf.get_variable("weight1", [nodes, 64], initializer=tf.truncated_normal_initializer(stddev=0.1))
     fc1_biases = tf.get_variable("bias1", [64], initializer=tf.constant_initializer(0.1))
     fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
-    if num != 290:        # 防止过拟合
+    if isTrain:        # 防止过拟合
         fc1 = tf.nn.dropout(fc1, 0.66)
 
     fc2_weights = tf.get_variable("weight2", [64, 10], initializer=tf.truncated_normal_initializer(stddev=0.1))
@@ -109,19 +109,20 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
     m_test = X_test.shape[0]
     n_y = Y_train.shape[1]
     costs = []  # To keep track of the cost
+    isTrain = tf.placeholder(tf.bool)
     num = tf.placeholder(tf.int32)
     X, Y = create_placeholders(n_H0, n_W0, n_C0, n_y)
     parameters = initialize_parameters()
     Z3, fc1w, fc2w = forward_propagation(X, parameters, num)
     cost = compute_cost(Z3, Y)
     # 采用L2正则化，避免过拟合
-    # regularizer = tf.contrib.layers.l2_regularizer(0.01)
+    # regularizer = tf.contrib.layers.l2_regularizer(0.004)
     # regularization = regularizer(fc1w)+regularizer(fc2w)
-    # loss = cost + regularization
+    # cost = cost + regularization
     # 定义global_step
     global_step = tf.Variable(0, trainable=False)
     # 通过指数衰减函数来生成学习率
-    learning_rate = tf.train.exponential_decay(0.01, global_step, 50, 0.96, staircase=False)
+    learning_rate = tf.train.exponential_decay(0.001, global_step, 50, 0.96, staircase=False)
     optimizer = tf.train.AdamOptimizer(learning_rate).minimize(cost, global_step)
     init = tf.global_variables_initializer()
     saver = tf.train.Saver()
@@ -149,7 +150,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.001,
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
                 train_accuracy = accuracy.eval({X: X_train, Y: Y_train, num: m})
-                test_accuracy = accuracy.eval({X: X_test, Y: Y_test, num: m_test})
+                test_accuracy = accuracy.eval({X: X_test, Y: Y_test, num: m_test, isTrain: False})
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
                 if save_session is True:
@@ -173,16 +174,24 @@ def loadDataSets():
     return XTrain, YLabels, XTest, YTestLabels
 
 def cnnTrain():
+    print("采用正则化的加权浅层图像特征")
     # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
-    trainFile = './logs/3dModelTrainSBeta_1.h5'
+    trainFile = './logs/3dModelTrainSBeta_8_2.h5'
     # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
-    testFile = './logs/3dModelTestSBeta_1.h5'
+    testFile = './logs/3dModelTestSBeta_8_2.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
     # XTrain, YTrain, XTest, YTest = loadDataSets()
+    XTrain[:,:,:,0] *= 0.6
+    XTrain[:,:,:,1] *= 0.2
+    XTrain[:,:,:,2] *= 0.2
+    XTest[:,:,:,0] *= 0.6
+    XTest[:,:,:,1] *= 0.2
+    XTest[:,:,:,2] *= 0.2
     parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=False)
-    return parameters
+    return XTrain, YTrain, XTest, YTest
+
 
 
 if __name__ == '__main__':
     # 三维模型测试
-    cnnTrain()
+    XTrain, YTrain, XTest, YTest = cnnTrain()
