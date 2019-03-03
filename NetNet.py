@@ -29,9 +29,9 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
 # 初始化参数
 def initialize_parameters():
     # tf.set_random_seed(1)  # so that your "random" numbers match ours
-    W1 = tf.get_variable("W1", [5, 5, 3, 6], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    W2 = tf.get_variable("W2", [5, 5, 6, 8], initializer=tf.contrib.layers.xavier_initializer(seed=0))
-    W3 = tf.get_variable("W3", [5, 5, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    W1 = tf.get_variable("W1", [5, 5, 3, 6], initializer=tf.contrib.layers.xavier_initializer(seed=2))
+    W2 = tf.get_variable("W2", [5, 5, 6, 8], initializer=tf.contrib.layers.xavier_initializer(seed=2))
+    W3 = tf.get_variable("W3", [5, 5, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=2))
     # W4 = tf.get_variable("W4", [2, 2, 16, 32], initializer=tf.contrib.layers.xavier_initializer(seed=0))
 
     parameters = {"W1": W1,
@@ -85,13 +85,13 @@ def forward_propagation(X, parameters, num, isTrain=True):
     #     reshaped = tf.nn.dropout(reshaped, 0.80)
     # initializer=tf.truncated_normal_initializer(stddev=0.1)
     # initializer=tf.contrib.layers.xavier_initializer(seed=2)
-    fc1_weights = tf.get_variable("weight1", [nodes, 64], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    fc1_weights = tf.get_variable("weight1", [nodes, 64], initializer=tf.truncated_normal_initializer(stddev=0.1, seed=1))
     fc1_biases = tf.get_variable("bias1", [64], initializer=tf.constant_initializer(0.1))
     fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
     # if isTrain:        # 防止过拟合
     #     fc1 = tf.nn.dropout(fc1, 0.66)
 
-    fc2_weights = tf.get_variable("weight2", [64, 10], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    fc2_weights = tf.get_variable("weight2", [64, 10], initializer=tf.truncated_normal_initializer(stddev=0.1, seed=1))
     fc2_biases = tf.get_variable("bias2", [10], initializer=tf.constant_initializer(0.1))
     logit = (tf.matmul(fc1, fc2_weights)+fc2_biases)
     return logit, fc1_weights, fc2_weights
@@ -142,7 +142,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.010,
                 test_accuracy = accuracy.eval({X: X_test, Y: Y_test, num: m_test, isTrain: False})
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
-                if save_session is True and test_accuracy > 0.869:
+                if save_session is True and test_accuracy > 0.874:
                     save_files = './session/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_files)
                     print("模型"+save_files+"保存成功.")
