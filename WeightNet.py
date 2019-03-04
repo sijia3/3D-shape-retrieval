@@ -1,10 +1,10 @@
-import math
-import numpy as np
-import h5py
-import matplotlib.pyplot as plt
-import scipy
-# from PIL import Image
-from scipy import ndimage
+# import math
+# import numpy as np
+# import h5py
+# import matplotlib.pyplot as plt
+# import scipy
+# # from PIL import Image
+# from scipy import ndimage
 # from PIL.Image import core as _imaging
 import tensorflow as tf
 from tensorflow.python.framework import ops
@@ -110,7 +110,7 @@ def compute_cost(Z3, Y):
     return cost
 
 
-def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.010,
+def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0002, l2_rate=0.001,
           num_epochs=500, minibatch_size=64, print_cost=True, save_session= False):
     print("l2_rate="+str(l2_rate)+" and learning_rate="+str(learning_rate))
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
@@ -118,6 +118,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.010,
 
     (m, n_H0, n_W0, n_C0) = X_train.shape
     a, b, c, d = X_test.shape
+    weight1, weight2, weight3 = 0.2, 0.2, 0.55
+    print("采用权值为", str(weight1), str(weight2), str(weight3))
     m_test = X_test.shape[0]
     n_y = Y_train.shape[1]
     costs = []  # To keep track of the cost
@@ -169,12 +171,12 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.010,
             if print_cost is True and epoch % 5 == 0:
                 print("损失函数经过%i次遍历后: %f" % (epoch, minibatch_cost0+minibatch_cost1+minibatch_cost2))
                 # print("Cost after epoch %i: %f" % (epoch, minibatch_cost0+minibatch_cost1+minibatch_cost2))
-                Z = Z0*0.6+Z1*0.2+Z2*0.2
+                Z = Z0*weight1+Z1*weight2+Z2*weight3
                 predict_op = tf.argmax(Z, 1)  # 返回每行最大值的索引
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
                 accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-                train_accuracy = accuracy.eval({X0: x0, X1: x1,X2: x2, Y: Y_train, num: m})
-                test_accuracy = accuracy.eval({X0: X0T, X1: X1T,X2: X2T, Y: Y_test, num: m_test, isTrain: False})
+                train_accuracy = accuracy.eval({X0: x0, X1: x1, X2: x2, Y: Y_train, num: m})
+                test_accuracy = accuracy.eval({X0: X0T, X1: X1T, X2: X2T, Y: Y_test, num: m_test, isTrain: False})
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
                 if save_session is True and test_accuracy > 0.877:
