@@ -156,10 +156,11 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
     optimizer0 = tf.train.AdamOptimizer(learning_rate).minimize(cost0, global_step)
     optimizer1 = tf.train.AdamOptimizer(learning_rate).minimize(cost1, global_step)
     optimizer2 = tf.train.AdamOptimizer(learning_rate).minimize(cost2, global_step)
-    init = tf.global_variables_initializer()
+    # init = tf.global_variables_initializer()
     saver = tf.train.Saver()
     with tf.Session() as sess:
-        sess.run(init)
+        # sess.run(init)
+        save_path = saver.restore(sess, 'another/model_forloop465.ckpt')
         for epoch in range(num_epochs):
             x0 = X_train[:,:,:,0].reshape(m, n_H0, n_W0, 1)
             x1 = X_train[:,:,:,1].reshape(m, n_H0, n_W0, 1)
@@ -185,7 +186,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
                 if save_session is True and test_accuracy > 0.877 and train_accuracy > 0.985:
-                    save_files = './session/model_forloop'+str(epoch)+'.ckpt'
+                    save_files = './another/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_files)
                     print("模型"+save_files+"保存成功.")
             if print_cost is True and epoch % 1 == 0:
@@ -207,9 +208,9 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
 def cnnTrain():
     print("采用正则化的加权浅层图像特征")
     # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
-    trainFile = './logs/3dModelTrainDBeta_8_2.h5'
+    trainFile = './logs/3dModelTrainDBeta_1.h5'
     # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
-    testFile = './logs/3dModelTestDBeta_8_2.h5'
+    testFile = './logs/3dModelTestDBeta_1.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
     print(XTrain.shape[0], XTest.shape[0])
     # XTrain, YTrain, XTest, YTest = loadDataSets()

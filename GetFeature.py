@@ -54,7 +54,7 @@ def getFeature(file_dir):
             # PlotVoxel.plot2DVoxel(vox, 64,files[i])
             # PlotVoxel.plotVoxel(vox, 64)
             # PlotTri.plotTri(verts,faces)
-            pics = getPics(vox, isInDepth=False)
+            pics = getPics(vox, isInDepth=True)
             # PlotVoxel.plotHotPic(pics, 64, files[i])
             allPics.append(pics)
             print("已完成第"+str(i+1)+"个文件夹的第"+str(j+1)+"个")
@@ -102,6 +102,6 @@ def getFea(dir, filename):
 
 
 if __name__ == '__main__':
-    getFea("D:\\ModelNet10\\train", './logs/3dModelTrainSBeta_8_2.h5')
-    getFea("D:\\ModelNet10\\test", './logs/3dModelTestSBeta_8_2.h5')
+    getFea("D:\\ModelNet10_82\\train", './logs/3dModelTrainDBeta_8_2.h5')
+    getFea("D:\\ModelNet10_82\\test", './logs/3dModelTestDBeta_8_2.h5')
 

@@ -1,0 +1,5 @@
+model_checkpoint_path: "model_forloop15.ckpt"
+all_model_checkpoint_paths: "model_forloop0.ckpt"
+all_model_checkpoint_paths: "model_forloop5.ckpt"
+all_model_checkpoint_paths: "model_forloop10.ckpt"
+all_model_checkpoint_paths: "model_forloop15.ckpt"

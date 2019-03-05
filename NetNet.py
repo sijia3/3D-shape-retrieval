@@ -28,7 +28,7 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
 
 # 初始化参数
 def initialize_parameters():
-    seed = 5
+    seed = 2
     print("卷积层的seed为"+str(seed))
 
     # tf.set_random_seed(1)  # so that your "random" numbers match ours
@@ -47,7 +47,7 @@ def initialize_parameters():
 
 
 def forward_propagation(X, parameters, num, isTrain=True):
-    seed = 5
+    seed = 1
     # Retrieve the parameters from the dictionary "parameters"
     W1 = parameters['W1']
     W2 = parameters['W2']
@@ -171,9 +171,9 @@ def loadDataSets():
 def cnnTrain():
     print("采用正则化的加权深层图像特征")
     # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
-    trainFile = './logs/3dModelTrainSBeta_8_2.h5'
+    trainFile = './logs/3dModelTrainSBeta_1.h5'
     # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
-    testFile = './logs/3dModelTestSBeta_8_2.h5'
+    testFile = './logs/3dModelTestSBeta_1.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
     # XTrain, YTrain, XTest, YTest = loadDataSets()
     XTrain[:,:,:,0] *= 0.6
