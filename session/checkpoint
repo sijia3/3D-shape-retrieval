@@ -1,0 +1,6 @@
+model_checkpoint_path: "model_forloop500.ckpt"
+all_model_checkpoint_paths: "model_forloop480.ckpt"
+all_model_checkpoint_paths: "model_forloop485.ckpt"
+all_model_checkpoint_paths: "model_forloop490.ckpt"
+all_model_checkpoint_paths: "model_forloop495.ckpt"
+all_model_checkpoint_paths: "model_forloop500.ckpt"

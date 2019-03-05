@@ -110,7 +110,7 @@ def compute_cost(Z3, Y):
     return cost
 
 
-def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0002, l2_rate=0.001,
+def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
           num_epochs=500, minibatch_size=64, print_cost=True, save_session= False):
     print("l2_rate="+str(l2_rate)+" and learning_rate="+str(learning_rate))
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
@@ -118,7 +118,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0002, l2_rate=0.001,
 
     (m, n_H0, n_W0, n_C0) = X_train.shape
     a, b, c, d = X_test.shape
-    weight1, weight2, weight3 = 0.2, 0.2, 0.55
+    weight1, weight2, weight3 = 0.6, 0.5, 0.2
     print("采用权值为", str(weight1), str(weight2), str(weight3))
     m_test = X_test.shape[0]
     n_y = Y_train.shape[1]
@@ -132,6 +132,9 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0002, l2_rate=0.001,
     Z0, fc1w0, fc2w0 = forward_propagation(X0, parameters, num, flag=0, randomSeed=seed)
     Z1, fc1w1, fc2w1 = forward_propagation(X1, parameters, num, flag=1, randomSeed=seed)
     Z2, fc1w2, fc2w2 = forward_propagation(X2, parameters, num, flag=2, randomSeed=seed)
+    normalize0 = tf.nn.l2_normalize(Z0, axis=1)     # 特征向量归一化
+    normalize1 = tf.nn.l2_normalize(Z1, axis=1)     # 特征向量归一化
+    normalize2 = tf.nn.l2_normalize(Z2, axis=1)     # 特征向量归一化
     cost0 = compute_cost(Z0, Y)
     cost1 = compute_cost(Z1, Y)
     cost2 = compute_cost(Z2, Y)
@@ -169,8 +172,10 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0002, l2_rate=0.001,
             _, minibatch_cost2 = sess.run([optimizer2, cost2], feed_dict={X2: x2, Y: Y_train, num: m})
 
             if print_cost is True and epoch % 5 == 0:
-                print("损失函数经过%i次遍历后: %f" % (epoch, minibatch_cost0+minibatch_cost1+minibatch_cost2))
+                print("损失函数经过%i次遍历后: %f, %f, %f" % (epoch, minibatch_cost0,minibatch_cost1,minibatch_cost2))
                 # print("Cost after epoch %i: %f" % (epoch, minibatch_cost0+minibatch_cost1+minibatch_cost2))
+                # todo 特征向量可先归一化
+
                 Z = Z0*weight1+Z1*weight2+Z2*weight3
                 predict_op = tf.argmax(Z, 1)  # 返回每行最大值的索引
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
@@ -179,7 +184,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0002, l2_rate=0.001,
                 test_accuracy = accuracy.eval({X0: X0T, X1: X1T, X2: X2T, Y: Y_test, num: m_test, isTrain: False})
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
-                if save_session is True and test_accuracy > 0.877:
+                if save_session is True and test_accuracy > 0.877 and train_accuracy > 0.985:
                     save_files = './session/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_files)
                     print("模型"+save_files+"保存成功.")
@@ -202,17 +207,18 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0002, l2_rate=0.001,
 def cnnTrain():
     print("采用正则化的加权浅层图像特征")
     # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
-    trainFile = './logs/3dModelTrainSBeta_8_2.h5'
+    trainFile = './logs/3dModelTrainDBeta_8_2.h5'
     # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
-    testFile = './logs/3dModelTestSBeta_8_2.h5'
+    testFile = './logs/3dModelTestDBeta_8_2.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
+    print(XTrain.shape[0], XTest.shape[0])
     # XTrain, YTrain, XTest, YTest = loadDataSets()
-    # XTrain[:,:,:,0] *= 0.6
-    # XTrain[:,:,:,1] *= 0.2
-    # XTrain[:,:,:,2] *= 0.2
-    # XTest[:,:,:,0] *= 0.6
-    # XTest[:,:,:,1] *= 0.2
-    # XTest[:,:,:,2] *= 0.2
+    XTrain[:,:,:,0] = XTrain[:,:,:,0]/64
+    XTrain[:,:,:,1] = XTrain[:,:,:,1]/64
+    XTrain[:,:,:,2] = XTrain[:,:,:,2]/64
+    XTest[:,:,:,0] = XTest[:,:,:,0]/64
+    XTest[:,:,:,1] = XTest[:,:,:,1]/64
+    XTest[:,:,:,2] = XTest[:,:,:,2]/64
     parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=True)
     return XTrain, YTrain, XTest, YTest
 

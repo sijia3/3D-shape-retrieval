@@ -9,13 +9,26 @@
 #     "sofa",
 #     "stair",
 #     "table"]
-models =[ "bed" ,
-    "bookshelf",
-    "bottle",
-    "bowl",
+# models =[ "bed" ,
+#     "bookshelf",
+#     "bottle",
+#     "bowl",
+#     "chair",
+#     "door",
+#     "lamp",
+#     "person",
+#     "sofa",
+#     "table"]
+
+models = [
+    "baththub",
+    "bed",
     "chair",
-    "door",
-    "lamp",
-    "person",
+    "desk",
+    "dresser",
+    "monitor",
+    "night_stand",
     "sofa",
-    "table"]
+    "table",
+    "toilet"
+]
