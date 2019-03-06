@@ -55,31 +55,31 @@ def forward_propagation(X, parameters, num, isTrain=True, flag=0, randomSeed=1):
 
     # CONV2D: stride of 1, padding 'SAME'
     Z1 = tf.nn.conv2d(X, W1, strides=[1, 1, 1, 1], padding='VALID')
-    print(Z1)
+    # print(Z1)
     # RELU
     A1 = tf.nn.relu(Z1)
     # MAXPOOL: window 8x8, sride 8, padding 'SAME'
     P1 = tf.nn.max_pool(A1, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
-    print(P1)
+    # print(P1)
 
     # CONV2D: filters W2, stride 1, padding 'SAME'
     Z2 = tf.nn.conv2d(P1, W2, strides=[1, 1, 1, 1], padding='VALID')
-    print(Z2)
+    # print(Z2)
     # RELU
     A2 = tf.nn.relu(Z2)
     # MAXPOOL: window 4x4, stride 4, padding 'SAME'
     P2 = tf.nn.max_pool(A2, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
-    print(P2)
+    # print(P2)
 
     # CONV2D: filters W2, stride 1, padding 'SAME'
     Z3 = tf.nn.conv2d(P2, W3, strides=[1, 1, 1, 1], padding='VALID')
-    print(Z3)
+    # print(Z3)
     # RELU
     A3 = tf.nn.relu(Z3)
     # MAXPOOL: window 4x4, stride 4, padding 'SAME'
     P3 = tf.nn.max_pool(A3, ksize=[1, 3, 3, 1], strides=[1, 3, 3, 1], padding='VALID')
     # print(P3)
-    print(P3.get_shape().as_list())
+    # print(P3.get_shape().as_list())
 
     pool_shape = P3.get_shape().as_list()
     nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
@@ -156,11 +156,11 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
     optimizer0 = tf.train.AdamOptimizer(learning_rate).minimize(cost0, global_step)
     optimizer1 = tf.train.AdamOptimizer(learning_rate).minimize(cost1, global_step)
     optimizer2 = tf.train.AdamOptimizer(learning_rate).minimize(cost2, global_step)
-    # init = tf.global_variables_initializer()
+    init = tf.global_variables_initializer()
     saver = tf.train.Saver()
     with tf.Session() as sess:
-        # sess.run(init)
-        save_path = saver.restore(sess, 'another/model_forloop465.ckpt')
+        sess.run(init)
+        # save_path = saver.restore(sess, 'another/a/model_forloop155.ckpt')
         for epoch in range(num_epochs):
             x0 = X_train[:,:,:,0].reshape(m, n_H0, n_W0, 1)
             x1 = X_train[:,:,:,1].reshape(m, n_H0, n_W0, 1)
@@ -185,8 +185,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
                 test_accuracy = accuracy.eval({X0: X0T, X1: X1T, X2: X2T, Y: Y_test, num: m_test, isTrain: False})
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
-                if save_session is True and test_accuracy > 0.877 and train_accuracy > 0.985:
-                    save_files = './another/model_forloop'+str(epoch)+'.ckpt'
+                if save_session is True and test_accuracy > 0.879 and train_accuracy > 0.985:
+                    save_files = './another/d_82/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_files)
                     print("模型"+save_files+"保存成功.")
             if print_cost is True and epoch % 1 == 0:
@@ -206,11 +206,11 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
 #     return XTrain, YLabels, XTest, YTestLabels
 
 def cnnTrain():
-    print("采用正则化的加权浅层图像特征")
+    print("采用正则化的加权深层图像特征")
     # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
-    trainFile = './logs/3dModelTrainDBeta_1.h5'
+    trainFile = './logs/3dModelTrainDBeta_8_2.h5'
     # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
-    testFile = './logs/3dModelTestDBeta_1.h5'
+    testFile = './logs/3dModelTestDBeta_8_2.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
     print(XTrain.shape[0], XTest.shape[0])
     # XTrain, YTrain, XTest, YTest = loadDataSets()

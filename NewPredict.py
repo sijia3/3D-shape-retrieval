@@ -8,6 +8,7 @@ import GetFeature as GF
 from ModelList import models
 import CNNUtils as CU
 import WeightNet as WN
+import scipy.io as io
 
 
 def predict(predictFilename):
@@ -47,7 +48,7 @@ def predict(predictFilename):
     saver = tf.train.Saver()
     with tf.Session() as sess:
         # 加载文件中的参数数据，会根据filename加载数据并保存到各个变量中
-        save_path = saver.restore(sess, 'session/model_forloop435.ckpt')
+        save_path = saver.restore(sess, 'another/b/model_forloop85.ckpt')
         x0 = X_train[:, :, :, 0].reshape(m, n_H0, n_W0, 1)
         x1 = X_train[:, :, :, 1].reshape(m, n_H0, n_W0, 1)
         x2 = X_train[:, :, :, 2].reshape(m, n_H0, n_W0, 1)
@@ -80,9 +81,9 @@ def predict(predictFilename):
 
 if __name__ == '__main__':
     # # 特征提取
-    # verts, faces = ReadOff.readOff('./model/bed_0563.off')
-       # 特征提取
     verts, faces = ReadOff.readOff('./model/bed_0563.off')
+       # 特征提取
+    # verts, faces = ReadOff.readOff('./model/bed_0615.off')
     # 体素化
     vox = Tri2Vox.Tri2Vox(verts, faces, 32)
     # 获取三视图
@@ -93,6 +94,8 @@ if __name__ == '__main__':
     # 加载模型
     trainFile = './logs/3dModelTrainDBeta_8_2.h5'
     testFile = './logs/3dModelTestDBeta_8_2.h5'
+    # trainFile = './logs/logs/3dModelTrainDBeta_1.h5'
+    # testFile = './logs/logs/3dModelTestDBeta_1.h5'
     X_train, Y_train, X_test, Y_test = CU.loadDataSets(trainFile, testFile)
     # 声明变量，以便模型加载可以存放
     (m, n_H0, n_W0, n_C0) = X_train.shape
@@ -114,18 +117,37 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
     with tf.Session() as sess:
         # 加载文件中的参数数据，会根据filename加载数据并保存到各个变量中
-        save_path = saver.restore(sess, 'session/model_forloop500.ckpt')
+        save_path = saver.restore(sess, 'another/c_82/model_forloop685.ckpt')
+        X_train[:, :, :, 0] = X_train[:, :, :, 0] / 64
+        X_train[:, :, :, 1] = X_train[:, :, :, 1] / 64
+        X_train[:, :, :, 2] = X_train[:, :, :, 2] / 64
+        test_pics[:, :, :, 0] = test_pics[:, :, :, 0] / 64
+        test_pics[:, :, :, 1] = test_pics[:, :, :, 1] / 64
+        test_pics[:, :, :, 2] = test_pics[:, :, :, 2] / 64
+        # X_test[:, :, :, 0] = X_test[:, :, :, 0] / 64
+        # X_test[:, :, :, 1] = X_test[:, :, :, 1] / 64
+        # X_test[:, :, :, 2] = X_test[:, :, :, 2] / 64
         x0 = X_train[:, :, :, 0].reshape(m, n_H0, n_W0, 1)
         x1 = X_train[:, :, :, 1].reshape(m, n_H0, n_W0, 1)
         x2 = X_train[:, :, :, 2].reshape(m, n_H0, n_W0, 1)
         X0T = test_pics[:, :, :, 0].reshape(1, b, c, 1)
         X1T = test_pics[:, :, :, 1].reshape(1, b, c, 1)
         X2T = test_pics[:, :, :, 2].reshape(1, b, c, 1)
-        w1, w2, w3 = 0.6, 0.3, 0.5
+        # X0T = X_test[:, :, :, 0].reshape(a, b, c, 1)
+        # X1T = X_test[:, :, :, 1].reshape(a, b, c, 1)
+        # X2T = X_test[:, :, :, 2].reshape(a, b, c, 1)
+        w1, w2, w3 = 0.6, 0.5, 0.2
         XTrainNorm0, XTrainNorm1, XTrainNorm2 = sess.run([normalize0, normalize1, normalize2], feed_dict={
             X0: x0, X1: x1, X2: x2, num: m})
         ModelNorm0, ModelNorm1, ModelNorm2 = sess.run([normalize0, normalize1, normalize2], feed_dict={
             X0: X0T, X1: X1T, X2: X2T, num: 1})
+
+        # io.savemat('./mat/2.mat', {'XTestNorm0': ModelNorm0, 'XTestNorm1': ModelNorm1, 'XTestNorm2': ModelNorm2})
+        # 以上训练好的东西，保存到mat文件中
+        # XTrainNorm0, XTrainNorm1, XTrainNorm2 = sess.run([Z0, Z1, Z2], feed_dict={
+        #     X0: x0, X1: x1, X2: x2, num: m})
+        # ModelNorm0, ModelNorm1, ModelNorm2 = sess.run([Z0, Z1, Z2], feed_dict={
+        #     X0: X0T, X1: X1T, X2: X2T, num: 1})
         XTrainNorm = XTrainNorm0*w1 + XTrainNorm1*w2 + XTrainNorm2*w3
         ModelNorm = ModelNorm0*w1 + ModelNorm0*w2 + ModelNorm2*w3
         eig = XTrainNorm - ModelNorm  # A-B
@@ -141,6 +163,8 @@ if __name__ == '__main__':
         eigIndex = np.argsort(eig)                 # 相似度排序，输出相似模型的下标
         # eigIndex150 = eigIndex[0:151]
         # print((eigIndex150 < 151).sum())
+
+        # ((eigIndex[0:80] < 160) & (eigIndex[0:80] > 80)).sum()
         predict_op = tf.argmax(ModelNorm, 1)  # 返回每行最大值的索引值
         predict = predict_op.eval({X0: X0T, X1: X1T, X2: X2T})
         print("预测为" + models[predict[0]])
