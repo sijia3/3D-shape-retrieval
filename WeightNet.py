@@ -110,8 +110,8 @@ def compute_cost(Z3, Y):
     return cost
 
 
-def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
-          num_epochs=500, minibatch_size=64, print_cost=True, save_session= False):
+def model(X_train, Y_train, X_test, Y_test, learning_rate=0.002, l2_rate=0.010,
+          num_epochs=500, minibatch_size=64, print_cost=True, save_session=False):
     print("l2_rate="+str(l2_rate)+" and learning_rate="+str(learning_rate))
     ops.reset_default_graph()  # to be able to rerun the model without overwriting tf variables
     # tf.set_random_seed(1)  # to keep results consistent (tensorflow seed)
@@ -160,7 +160,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
     saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(init)
-        # save_path = saver.restore(sess, 'another/a/model_forloop155.ckpt')
+        # save_path = saver.restore(sess, 'another/t_82/model_forloop170.ckpt')
         for epoch in range(num_epochs):
             x0 = X_train[:,:,:,0].reshape(m, n_H0, n_W0, 1)
             x1 = X_train[:,:,:,1].reshape(m, n_H0, n_W0, 1)
@@ -175,8 +175,6 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
             if print_cost is True and epoch % 5 == 0:
                 print("损失函数经过%i次遍历后: %f, %f, %f" % (epoch, minibatch_cost0,minibatch_cost1,minibatch_cost2))
                 # print("Cost after epoch %i: %f" % (epoch, minibatch_cost0+minibatch_cost1+minibatch_cost2))
-                # todo 特征向量可先归一化
-
                 Z = Z0*weight1+Z1*weight2+Z2*weight3
                 predict_op = tf.argmax(Z, 1)  # 返回每行最大值的索引
                 correct_prediction = tf.equal(predict_op, tf.argmax(Y, 1))
@@ -185,8 +183,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
                 test_accuracy = accuracy.eval({X0: X0T, X1: X1T, X2: X2T, Y: Y_test, num: m_test, isTrain: False})
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
-                if save_session is True and test_accuracy > 0.879 and train_accuracy > 0.985:
-                    save_files = './another/d_82/model_forloop'+str(epoch)+'.ckpt'
+                if save_session is True  and train_accuracy > 0.985:
+                    save_files = './another/v_82/model_forloop'+str(epoch)+'.ckpt'
                     saver.save(sess, save_files)
                     print("模型"+save_files+"保存成功.")
             if print_cost is True and epoch % 1 == 0:
@@ -207,9 +205,10 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0005, l2_rate=0.09,
 
 def cnnTrain():
     print("采用正则化的加权深层图像特征")
-    # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
+
+    # trainFile = './logs/logs/3dModelTrainDBeta_1.h5'
+    # testFile = './logs/logs/3dModelTestDBeta_1.h5'
     trainFile = './logs/3dModelTrainDBeta_8_2.h5'
-    # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
     testFile = './logs/3dModelTestDBeta_8_2.h5'
     XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
     print(XTrain.shape[0], XTest.shape[0])
@@ -228,3 +227,22 @@ def cnnTrain():
 if __name__ == '__main__':
     # 三维模型测试
     XTrain, YTrain, XTest, YTest = cnnTrain()
+    # print("采用正则化的加权深层图像特征")
+    # # trainFile = './datasets/3dModelTrainBeta4ModelNet10.h5'
+    # trainFile = './logs/3dModelTrainDBeta_8_2.h5'
+    # # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
+    # testFile = './logs/3dModelTestDBeta_8_2.h5'
+    # XTrain, YTrain, XTest, YTest = CU.loadDataSets(trainFile, testFile)
+    # print(XTrain.shape[0], XTest.shape[0])
+    # # XTrain, YTrain, XTest, YTest = loadDataSets()
+    # # XTrain[:,:,:,0] = XTrain[:,:,:,0]/64
+    # # XTrain[:,:,:,1] = XTrain[:,:,:,1]/64
+    # # XTrain[:,:,:,2] = XTrain[:,:,:,2]/64
+    # # XTest[:,:,:,0] = XTest[:,:,:,0]/64
+    # # XTest[:,:,:,1] = XTest[:,:,:,1]/64
+    # # XTest[:,:,:,2] = XTest[:,:,:,2]/64
+    # # parameters = model(XTrain, YTrain, XTest, YTest, num_epochs=10000, save_session=True)
+    # trainFile = './logs/sijia3/3dModelTrainDBeta_8_2.h5'
+    # # testFile = './datasets/3dModelTestBeta4ModelNet10.h5'
+    # testFile = './logs/sijia3/3dModelTestDBeta_8_2.h5'
+    # XTrain1, YTrain1, XTest1, YTest1 = CU.loadDataSets(trainFile, testFile)
