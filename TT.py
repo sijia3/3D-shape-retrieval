@@ -3,6 +3,7 @@ from PIL import Image
 import os
 import CNNUtils as CU
 import H5FileUtils as h5utils
+import matplotlib.pyplot as plt
 
 
 def pic2array(path):
@@ -31,12 +32,13 @@ def pic2array(path):
                 fillname = modeldirone+filename
                 print(fillname)
                 img = Image.open(fillname).convert('L')
-                img = img.resize((64, 64))
-                # image_arr = np.array(img).reshape((64, 64, 1))
-                image_arr = np.array(img).reshape((64, 64))
+                img = img.resize((100, 100))
+                image_arr = np.array(img).reshape((100, 100, 1))
+                # image_arr = np.array(img).reshape((64, 64))
                 # allpics.append(image_arr)
                 modelpics.append(image_arr)
-            modelpics = np.array(modelpics).transpose(1,2,0)
+            # modelpics = np.array(modelpics).transpose(1,2,0)
+            modelpics = np.array(modelpics)
             allpics.append(modelpics)
     allpics = np.array(allpics)
     return allpics
@@ -45,10 +47,10 @@ def pic2array(path):
 
 
 if __name__ == '__main__':
-    testarr = pic2array('C:/Users/97933/Desktop/AA/testmodel/')
-    trainarr = pic2array('C:/Users/97933/Desktop/AA/trainmodel/')
-    h5utils.writeH5File('./logs/3dPicTrain82_1.h5', trainarr)
-    h5utils.writeH5File('./logs/3dPicTest82_1.h5', testarr)
+    testarr = pic2array('E:/3d_Retrival_System_beta2/3D-shape-retrival/testmodel/')
+    trainarr = pic2array('E:/3d_Retrival_System_beta2/3D-shape-retrival/trainmodel/')
+    h5utils.writeH5File('./logs/picdata/3dPic100Train82_3.h5', trainarr)
+    h5utils.writeH5File('./logs/picdata/3dPic100Test82_3.h5', testarr)
 
 
 

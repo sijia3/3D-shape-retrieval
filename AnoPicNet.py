@@ -29,9 +29,9 @@ def create_placeholders(pics, n_H0, n_W0, n_C0, n_y):
 def initialize_parameters(randomSeed=1):
 
     print("初始化参数的seed为"+str(randomSeed))
-    W1 = tf.get_variable("W1", [1, 5, 5, 1, 1], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
-    W2 = tf.get_variable("W2", [1, 5, 5, 1, 1], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
-    W3 = tf.get_variable("W3", [5, 5, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
+    W1 = tf.get_variable("W1", [1, 3, 3, 1, 1], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
+    W2 = tf.get_variable("W2", [1, 4, 4, 1, 1], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
+    W3 = tf.get_variable("W3", [2, 2, 1, 6], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
 
     parameters = {"W1": W1,
                   "W2": W2,
@@ -82,24 +82,35 @@ def forward_propagation(X, parameters, num, isTrain=True, flag=0, randomSeed=1):
     print(P3)
     pool_shape = P3.get_shape().as_list()
     print(pool_shape)
-    nodes = pool_shape[1] * pool_shape[2] * pool_shape[3]
-    reshaped = tf.reshape(P3, [num, nodes])
+    P4 = tf.reshape(P3, [num, pool_shape[2],pool_shape[3],pool_shape[4]])
+    print("-----"+str(P4))
+    Z4 = tf.nn.conv2d(P4, W3, strides=[1, 1, 1, 1], padding='VALID')
+    print(Z4)
+    A4 = tf.nn.relu(Z4)
+    # MAXPOOL: window 4x4, stride 4, padding 'SAME'
+    P5 = tf.nn.max_pool(A4, ksize=[1, 2, 2, 1], strides=[1, 2, 2, 1], padding='VALID')
+    print(P5)
+
+    pool_shape1 = P5.get_shape().as_list()
+    print(pool_shape1)
+    nodes1 = pool_shape1[1] * pool_shape1[2] * pool_shape1[3]
+    reshaped1 = tf.reshape(P5, [num, nodes1])
     w1 = "weight1_" + str(flag)
     b1 = "bias1_" + str(flag)
     w2 = "weight2_" + str(flag)
     b2 = "bias2_" + str(flag)
-    fc1_weights = tf.get_variable(w1, [nodes, 10],
+    fc1_weights = tf.get_variable(w1, [nodes1, 64],
                                   initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
-    fc1_biases = tf.get_variable(b1, [10], initializer=tf.constant_initializer(0.001))
-    fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights) + fc1_biases)
+    fc1_biases = tf.get_variable(b1, [64], initializer=tf.constant_initializer(0.001))
+    fc1 = tf.nn.relu(tf.matmul(reshaped1, fc1_weights) + fc1_biases)
     # if isTrain:        # 防止过拟合
     #     fc1 = tf.nn.dropout(fc1, 0.66)
 
-    # fc2_weights = tf.get_variable(w2, [64, 10],
-    #                               initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
-    # fc2_biases = tf.get_variable(b2, [10], initializer=tf.constant_initializer(0.1))
-    # logit = (tf.matmul(fc1, fc2_weights) + fc2_biases)
-    return fc1, fc1_weights
+    fc2_weights = tf.get_variable(w2, [64, 10],
+                                  initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
+    fc2_biases = tf.get_variable(b2, [10], initializer=tf.constant_initializer(0.001))
+    logit = (tf.matmul(fc1, fc2_weights) + fc2_biases)
+    return logit, fc1_weights, fc2_weights
 
 
 # 计算损失函数
@@ -108,9 +119,9 @@ def compute_cost(Z3, Y):
     return cost
 
 
-def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.050,
+def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.040,
           num_epochs=500, minibatch_size=64, print_cost=True, save_session=False):
-    print("learning_rate="+str(learning_rate)," and l2_rate="+str(l2_rate))
+    print("learning_rate=" + str(learning_rate), " and l2_rate=" + str(l2_rate))
     (m, pics, n_H0, n_W0, n_C0) = X_train.shape
     a, picstt, b, c, d = X_test.shape
     m_test = X_test.shape[0]
@@ -120,15 +131,15 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.050,
     num = tf.placeholder(tf.int32)
     flag = tf.Variable(0, trainable=False)
     X, Y = create_placeholders(pics, n_H0, n_W0, n_C0, n_y)
-    seed = 1
+    seed = 2
     parameters = initialize_parameters(randomSeed=seed)
-    Z0, fc1w0 = forward_propagation(X, parameters, num, flag=0, randomSeed=seed)
+    Z0, fc1w0, fc2w0 = forward_propagation(X, parameters, num, flag=0, randomSeed=seed)
 
     cost0 = compute_cost(Z0, Y)
 
     # 采用L2正则化，避免过拟合
     regularizer = tf.contrib.layers.l2_regularizer(l2_rate)
-    regularization0 = regularizer(fc1w0)
+    regularization0 = regularizer(fc1w0)+regularizer(fc2w0)
     cost0 = cost0 + regularization0
 
     global_step = tf.Variable(0, dtype=tf.int64, trainable=False)
@@ -141,19 +152,19 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.050,
         sess.run(init)
         # save_path = saver.restore(sess, 'another/t_82/model_forloop170.ckpt')
         for epoch in range(num_epochs):
-            _, minibatch_cost = sess.run([optimizer0, cost0], feed_dict={X: X_train, Y: Y_train, num: m})
-            # minibatch_cost = 0.
-            # num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
-            # seed = seed + 1
-            # minibatches = CNNUtils.random_mini_batches(X_train, Y_train, minibatch_size, seed)
-            #
-            # for minibatch in minibatches:
-            #     # Select a minibatch
-            #     (minibatch_X, minibatch_Y) = minibatch
-            #     # IMPORTANT: The line that runs the graph on a minibatch.
-            #     # Run the session to execute the optimizer and the cost, the feedict should contain a minibatch for (X,Y).
-            #     _, temp_cost = sess.run([optimizer0, cost0], feed_dict={X: minibatch_X, Y: minibatch_Y, num: minibatch_X.shape[0]})
-            #     minibatch_cost += temp_cost / num_minibatches
+            # _, minibatch_cost = sess.run([optimizer0, cost0], feed_dict={X: X_train, Y: Y_train, num: m})
+            minibatch_cost = 0.
+            num_minibatches = int(m / minibatch_size)  # number of minibatches of size minibatch_size in the train set
+            seed = seed + 1
+            minibatches = CNNUtils.random_mini_batches(X_train, Y_train, minibatch_size, seed)
+
+            for minibatch in minibatches:
+                # Select a minibatch
+                (minibatch_X, minibatch_Y) = minibatch
+                # IMPORTANT: The line that runs the graph on a minibatch.
+                # Run the session to execute the optimizer and the cost, the feedict should contain a minibatch for (X,Y).
+                _, temp_cost = sess.run([optimizer0, cost0], feed_dict={X: minibatch_X, Y: minibatch_Y, num: minibatch_X.shape[0]})
+                minibatch_cost += temp_cost / num_minibatches
 
             if print_cost is True and epoch % 5 == 0:
                 print("损失函数经过%i次遍历后: %f" % (epoch, minibatch_cost))
@@ -175,8 +186,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.050,
         return parameters
 
 def cnnTrain():
-    trainpicsfile = './logs/picdata/3dPic100Train82_2.h5'
-    testpicsfile = './logs/picdata/3dPic100Test82_2.h5'
+    trainpicsfile = './logs/picdata/3dPic100Train82_3.h5'
+    testpicsfile = './logs/picdata/3dPic100Test82_3.h5'
     trainFile = './logs/3dModelTrainDBeta_8_2.h5'
     testFile = './logs/3dModelTestDBeta_8_2.h5'
     _, YTrain, _, YTest = CU.loadDataSets(trainFile, testFile)
