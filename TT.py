@@ -31,9 +31,10 @@ def pic2array(path):
                 filename = filefiles[k]
                 fillname = modeldirone+filename
                 print(fillname)
-                img = Image.open(fillname).convert('L')
-                img = img.resize((100, 100))
-                image_arr = np.array(img).reshape((100, 100, 1))
+                img = Image.open(fillname)
+                img = img.resize((64, 64))
+                # image_arr = np.array(img)
+                image_arr = np.array(img).reshape((64, 64, 3))
                 # image_arr = np.array(img).reshape((64, 64))
                 # allpics.append(image_arr)
                 modelpics.append(image_arr)
@@ -47,10 +48,10 @@ def pic2array(path):
 
 
 if __name__ == '__main__':
-    testarr = pic2array('E:/3d_Retrival_System_beta2/3D-shape-retrival/testmodel/')
-    trainarr = pic2array('E:/3d_Retrival_System_beta2/3D-shape-retrival/trainmodel/')
-    h5utils.writeH5File('./logs/picdata/3dPic100Train82_3.h5', trainarr)
-    h5utils.writeH5File('./logs/picdata/3dPic100Test82_3.h5', testarr)
+    testarr = pic2array('C:/Users/97933/Desktop/AA/testmodel/')
+    # trainarr = pic2array('C:/Users/97933/Desktop/AA/trainmodel/')
+    # h5utils.writeH5File('./logs/3dColorPic100Train82_2.h5', trainarr)
+    # h5utils.writeH5File('./logs/3dColorPic100Test82_2.h5', testarr)
 
 
 

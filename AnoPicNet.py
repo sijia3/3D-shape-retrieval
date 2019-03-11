@@ -81,7 +81,7 @@ def forward_propagation(X, parameters, num, isTrain=True, flag=0, randomSeed=1):
     P3 = tf.nn.max_pool3d(P2, ksize=[1, 8, 2, 2, 1], strides=[1, 1, 2, 2, 1], padding='VALID')
     print(P3)
     pool_shape = P3.get_shape().as_list()
-    print(pool_shape)
+    print("---"+str(pool_shape))
     P4 = tf.reshape(P3, [num, pool_shape[2],pool_shape[3],pool_shape[4]])
     print("-----"+str(P4))
     Z4 = tf.nn.conv2d(P4, W3, strides=[1, 1, 1, 1], padding='VALID')
@@ -101,14 +101,14 @@ def forward_propagation(X, parameters, num, isTrain=True, flag=0, randomSeed=1):
     b2 = "bias2_" + str(flag)
     fc1_weights = tf.get_variable(w1, [nodes1, 64],
                                   initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
-    fc1_biases = tf.get_variable(b1, [64], initializer=tf.constant_initializer(0.001))
+    fc1_biases = tf.get_variable(b1, [64], initializer=tf.constant_initializer(0.01))
     fc1 = tf.nn.relu(tf.matmul(reshaped1, fc1_weights) + fc1_biases)
     # if isTrain:        # 防止过拟合
     #     fc1 = tf.nn.dropout(fc1, 0.66)
 
     fc2_weights = tf.get_variable(w2, [64, 10],
                                   initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
-    fc2_biases = tf.get_variable(b2, [10], initializer=tf.constant_initializer(0.001))
+    fc2_biases = tf.get_variable(b2, [10], initializer=tf.constant_initializer(0.01))
     logit = (tf.matmul(fc1, fc2_weights) + fc2_biases)
     return logit, fc1_weights, fc2_weights
 
@@ -119,7 +119,7 @@ def compute_cost(Z3, Y):
     return cost
 
 
-def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.040,
+def model(X_train, Y_train, X_test, Y_test, learning_rate=0.0015, l2_rate=0.003,
           num_epochs=500, minibatch_size=64, print_cost=True, save_session=False):
     print("learning_rate=" + str(learning_rate), " and l2_rate=" + str(l2_rate))
     (m, pics, n_H0, n_W0, n_C0) = X_train.shape
@@ -178,7 +178,7 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.040,
                 print("训练集识别率:", train_accuracy)
                 print("测试集识别率:", test_accuracy)
                 if save_session is True and train_accuracy > 0.985 and test_accuracy >0.89:
-                    save_files = './another/v_82/model_forloop' + str(epoch) + '.ckpt'
+                    save_files = './another/x_82/model_forloop' + str(epoch) + '.ckpt'
                     saver.save(sess, save_files)
                     print("模型" + save_files + "保存成功.")
             if print_cost is True and epoch % 1 == 0:
@@ -186,8 +186,8 @@ def model(X_train, Y_train, X_test, Y_test, learning_rate=0.015, l2_rate=0.040,
         return parameters
 
 def cnnTrain():
-    trainpicsfile = './logs/picdata/3dPic100Train82_3.h5'
-    testpicsfile = './logs/picdata/3dPic100Test82_3.h5'
+    trainpicsfile = './logs/3dPic100Train82_3.h5'
+    testpicsfile = './logs/3dPic100Test82_3.h5'
     trainFile = './logs/3dModelTrainDBeta_8_2.h5'
     testFile = './logs/3dModelTestDBeta_8_2.h5'
     _, YTrain, _, YTest = CU.loadDataSets(trainFile, testFile)
