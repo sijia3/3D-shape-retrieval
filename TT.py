@@ -27,19 +27,20 @@ def pic2array(path):
                 # print(files)  # 当前路径下所有子目录
                 break;
             modelpics = []
-            for k in range(len(filefiles)):
+            for k in range(len(filefiles)-1):
                 filename = filefiles[k]
                 fillname = modeldirone+filename
                 print(fillname)
-                img = Image.open(fillname).convert('L')
-                img = img.resize((100, 100))
-                image_arr = np.array(img).reshape((100, 100, 1))
+                img = Image.open(fillname)
+                img = img.resize((64, 64)).convert('L')
+                # image_arr = np.array(img)
+                image_arr = np.array(img).reshape((64, 64, 1))
                 # image_arr = np.array(img).reshape((64, 64))
                 # allpics.append(image_arr)
-                modelpics.append(image_arr)
+                # modelpics.append(image_arr)
             # modelpics = np.array(modelpics).transpose(1,2,0)
-            modelpics = np.array(modelpics)
-            allpics.append(modelpics)
+                modelpics = np.array(image_arr)
+                allpics.append(modelpics)
     allpics = np.array(allpics)
     return allpics
 
@@ -47,10 +48,11 @@ def pic2array(path):
 
 
 if __name__ == '__main__':
+
     testarr = pic2array('E:/3d_Retrival_System_beta2/3D-shape-retrival/testmodel/')
     trainarr = pic2array('E:/3d_Retrival_System_beta2/3D-shape-retrival/trainmodel/')
-    h5utils.writeH5File('./logs/picdata/3dPic100Train82_3.h5', trainarr)
-    h5utils.writeH5File('./logs/picdata/3dPic100Test82_3.h5', testarr)
+    h5utils.writeH5File('./logs/3dNoColorPic64Train82_5.h5', trainarr)
+    h5utils.writeH5File('./logs/3dNoColorPic64Test82_5.h5', testarr)
 
 
 

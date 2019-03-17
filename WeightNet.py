@@ -30,10 +30,11 @@ def create_placeholders(n_H0, n_W0, n_C0, n_y):
 def initialize_parameters(randomSeed=1):
 
     print("初始化参数的seed为"+str(randomSeed))
-    W1 = tf.get_variable("W1", [5, 5, 1, 6], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
-    W2 = tf.get_variable("W2", [5, 5, 6, 8], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
-    W3 = tf.get_variable("W3", [5, 5, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
-    # W4 = tf.get_variable("W4", [2, 2, 16, 32], initializer=tf.contrib.layers.xavier_initializer(seed=0))
+    with tf.variable_scope('', reuse=tf.AUTO_REUSE) as te:
+        W1 = tf.get_variable("W1", [5, 5, 1, 6], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
+        W2 = tf.get_variable("W2", [5, 5, 6, 8], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
+        W3 = tf.get_variable("W3", [5, 5, 8, 16], initializer=tf.contrib.layers.xavier_initializer(seed=randomSeed))
+        # W4 = tf.get_variable("W4", [2, 2, 16, 32], initializer=tf.contrib.layers.xavier_initializer(seed=0))
 
     parameters = {"W1": W1,
                   "W2": W2,
@@ -92,14 +93,15 @@ def forward_propagation(X, parameters, num, isTrain=True, flag=0, randomSeed=1):
     b1 = "bias1_"+str(flag)
     w2= "weight2_"+str(flag)
     b2 = "bias2_"+str(flag)
-    fc1_weights = tf.get_variable(w1, [nodes, 64], initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
-    fc1_biases = tf.get_variable(b1, [64], initializer=tf.constant_initializer(0.1))
+    with tf.variable_scope('', reuse=tf.AUTO_REUSE) as te:
+        fc1_weights = tf.get_variable(w1, [nodes, 64], initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
+        fc1_biases = tf.get_variable(b1, [64], initializer=tf.constant_initializer(0.1))
     fc1 = tf.nn.relu(tf.matmul(reshaped, fc1_weights)+fc1_biases)
     # if isTrain:        # 防止过拟合
     #     fc1 = tf.nn.dropout(fc1, 0.66)
-
-    fc2_weights = tf.get_variable(w2, [64, 10], initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
-    fc2_biases = tf.get_variable(b2, [10], initializer=tf.constant_initializer(0.1))
+    with tf.variable_scope('', reuse=tf.AUTO_REUSE) as te:
+        fc2_weights = tf.get_variable(w2, [64, 10], initializer=tf.truncated_normal_initializer(stddev=0.1, seed=randomSeed))
+        fc2_biases = tf.get_variable(b2, [10], initializer=tf.constant_initializer(0.1))
     logit = (tf.matmul(fc1, fc2_weights)+fc2_biases)
     return logit, fc1_weights, fc2_weights
 
