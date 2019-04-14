@@ -17,16 +17,26 @@ Step3: 打开VoxPicTrainPredict.py文件，执行main方法即可得到模型预
 ---
 ## 项目主要内容：
 1. 主要功能介绍(每个文件都有单独的main函数(测试用))
-    2. ReadOff文件。读取.off后缀的模型文件，做模型预处理。 
-    2. Tri2Vox文件。对模型进行体素化。
-    2. GetFeature文件。对体素化后的模型进行提取特征。
-    2. GetLabels文件。提取主文件下模型的标签。(监督式学习)
-    2. CNNUtils文件。神经网络训练的工具。
-    2. CNNVixPicTrain文件。对体素化后的模型三视图进行训练。
-    2. H5FileUtils文件。针对特征数据存储读写的h5utils工具
-    2. VoxPicTrainPredict文件。对训练好的模型，针对单个模型，进行预测。
-    2. CNNPicTrain文件。对多视角视图特征进行训练。
-    2. PlotTri，PlotVoxel文件。对模型或模型特征进行可视化输出。
+    2. ReadOff文件。读取.off后缀的模型文件，做模型预处理。   
+         
+    2. Tri2Vox文件。对模型进行体素化。       
+    
+    2. GetFeature文件。对体素化后的模型进行提取特征。    
+    
+    2. GetLabels文件。提取主文件下模型的标签。(监督式学习)    
+    
+    2. CNNUtils文件。神经网络训练的工具。     
+    
+    2. CNNVixPicTrain文件。对体素化后的模型三视图进行训练。    
+    
+    2. H5FileUtils文件。针对特征数据存储读写的h5utils工具。     
+    
+    2. VoxPicTrainPredict文件。对训练好的模型，针对单个模型，进行预测。     
+    
+    2. CNNPicTrain文件。对多视角视图特征进行训练。     
+    
+    2. PlotTri，PlotVoxel文件。对模型或模型特征进行可视化输出。    
+    
 2. **model**文件夹。用于存放测试模型。模型选自ModelNet或PSB数据集。有兴趣可到官网浏览或下载。链接: [普林斯大学modelnet模型库](http://modelnet.cs.princeton.edu/)
 3. **session**文件夹。用于存放模型训练参数的session。可用于保存训练中得到的较好参数，并在模型预测时可加载session得到模型特征。
 4. **logs**文件夹。用于存放模型特征数据。
