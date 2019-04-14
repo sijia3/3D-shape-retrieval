@@ -82,7 +82,7 @@ def predictOne():
     saver = tf.train.Saver()
     with tf.Session() as sess:
         # 加载文件中的参数数据，会根据filename加载数据并保存到各个变量中
-        save_path = saver.restore(sess, './another/u_82/model_forloop275.ckpt')
+        save_path = saver.restore(sess, './session/vox/model_forloop275.ckpt')
         X_train[:, :, :, 0] = X_train[:, :, :, 0] / 64
         X_train[:, :, :, 1] = X_train[:, :, :, 1] / 64
         X_train[:, :, :, 2] = X_train[:, :, :, 2] / 64
