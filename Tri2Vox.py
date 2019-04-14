@@ -8,7 +8,7 @@ import PlotTri
 import ReadOff
 import PlotVoxel
 #  表体素化
-def Tri2Vox(modelPoint, modelPlane, voxSize):
+def Tri2Vox(modelPoint, modelPlane, voxSize=64):
     """
     体素化模型
     :param modelPoint: 模型点
@@ -20,8 +20,7 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
     (numPoint, dim) = modelPoint.shape
     (numPlane, dot) = modelPlane.shape
     modelPoint = modelPoint+1       # 将坐标移到第一象限
-    modelPoint = modelPoint*voxSize
-
+    modelPoint = modelPoint*voxSize/2
 
     # 遍历面片
     segEle = 1.0        # 体素宽度
@@ -63,19 +62,14 @@ def Tri2Vox(modelPoint, modelPlane, voxSize):
             vSet = np.floor(vSet)                        # 向下取整
             vSet = np.unique(vSet, axis=0)          # 去重
             layoutVox = np.vstack((layoutVox, vSet))
-    # endfor
-    # vox = np.array(layoutVox).reshape(len(layoutVox)/3, 3)
-    # vox = np.ceil(vox)
     vox = np.unique(layoutVox, axis=0)
     vox = np.delete(vox, 0, 0)
     return vox
 
 
 if __name__ == '__main__':
-    file_dir = "./model/.off"
+    file_dir = "./model/airplane_0007.off"
     verts, faces = ReadOff.readOff(file_dir)
-    vox = Tri2Vox(verts, faces, 32)
-    PlotTri.plotTri(verts,faces)
-    PlotVoxel.plotVoxel(vox,64)
-
+    vox = Tri2Vox(verts, faces, 64)
+    PlotVoxel.plotVoxel(vox, 64)
 

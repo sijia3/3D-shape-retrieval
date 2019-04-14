@@ -1,12 +1,15 @@
 import numpy as np
 from PIL import Image
 import os
-import CNNUtils as CU
 import H5FileUtils as h5utils
-import matplotlib.pyplot as plt
 
 
 def pic2array(path):
+    """
+    将图片格式转为数组格式
+    :param path: 模型的总路径
+    :return:
+    """
     allpics = []
     file_dir = path          # 'C:/Users/97933/Desktop/AA/testmodel/'
     for root, dirs, files in os.walk(file_dir):
@@ -32,19 +35,16 @@ def pic2array(path):
                 fillname = modeldirone+filename
                 print(fillname)
                 img = Image.open(fillname)
-                img = img.resize((64, 64)).convert('L')
+                img = img.resize((64, 64)).convert('L')        # 转换成灰度图像
                 # image_arr = np.array(img)
                 image_arr = np.array(img).reshape((64, 64, 1))
                 # image_arr = np.array(img).reshape((64, 64))
                 # allpics.append(image_arr)
                 # modelpics.append(image_arr)
-            # modelpics = np.array(modelpics).transpose(1,2,0)
                 modelpics = np.array(image_arr)
                 allpics.append(modelpics)
     allpics = np.array(allpics)
     return allpics
-
-
 
 
 if __name__ == '__main__':
@@ -54,10 +54,7 @@ if __name__ == '__main__':
     h5utils.writeH5File('./logs/3dNoColorPic64Train82_5.h5', trainarr)
     h5utils.writeH5File('./logs/3dNoColorPic64Test82_5.h5', testarr)
 
-
-
-
-# img = Image.open('C:/Users/97933/Desktop/AA/testmodel/bathtub/bathtub_0015/bathtub_0015_1.jpg').convert('L')
-# img = img.resize((64, 64))
-# img.show()
-# image_arr = np.array(img).reshape((64,64,1))
+    # img = Image.open('C:/Users/97933/Desktop/AA/testmodel/bathtub/bathtub_0015/bathtub_0015_1.jpg').convert('L')
+    # img = img.resize((64, 64))
+    # img.show()
+    # image_arr = np.array(img).reshape((64,64,1))

@@ -1,22 +1,8 @@
-# import math
-# import numpy as np
-# import h5py
 import os
-
-import matplotlib.pyplot as plt
-# import scipy
-# # from PIL import Image
-# from scipy import ndimage
-# from PIL.Image import core as _imaging
 import numpy as np
 import tensorflow as tf
 from PIL import Image
-from tensorflow.python.framework import ops
-# from cnn_utils import *
-import CNNUtils
-import GetFeature as GF
 import CNNUtils as CU
-import CNNTrain as CT
 import H5FileUtils as h5utils
 import AnoPicNet as WN
 from ModelList import models

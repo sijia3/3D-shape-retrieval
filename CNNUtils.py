@@ -8,23 +8,6 @@ import H5FileUtils as h5utils
 
 
 
-# def load_dataset():
-#     train_dataset = h5py.File('datasets/train_signs.h5', "r")
-#     train_set_x_orig = np.array(train_dataset["train_set_x"][:])  # your train set features
-#     train_set_y_orig = np.array(train_dataset["train_set_y"][:])  # your train set labels
-#
-#     test_dataset = h5py.File('datasets/test_signs.h5', "r")
-#     test_set_x_orig = np.array(test_dataset["test_set_x"][:])  # your test set features
-#     test_set_y_orig = np.array(test_dataset["test_set_y"][:])  # your test set labels
-#
-#     classes = np.array(test_dataset["list_classes"][:])  # the list of classes
-#
-#     train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
-#     test_set_y_orig = test_set_y_orig.reshape((1, test_set_y_orig.shape[0]))
-#
-#     return train_set_x_orig, train_set_y_orig, test_set_x_orig, test_set_y_orig, classes
-#
-
 def loadDataSets(trainFile, testFile):
     """
     加载模型数据
@@ -33,16 +16,26 @@ def loadDataSets(trainFile, testFile):
     :return: 加载后的模型特征跟标签数据
     """
     # trainFile = './datasets/train_model.h5'
-    XTrain, YTrain= h5utils.readH5File(trainFile)
+    XTrain, YTrain= h5utils.readDataAndLabels(trainFile)
     YTrain = YTrain.reshape(1, len(YTrain)).astype('int64')
     YTrain = convert_to_one_hot(YTrain, 10).T
 
     # testFile = './datasets/test_model.h5'
-    XTest, YTest = h5utils.readH5File(testFile)
+    XTest, YTest = h5utils.readDataAndLabels(testFile)
     YTest = YTest.reshape(1, len(YTest)).astype('int64')
     YTest = convert_to_one_hot(YTest, 10).T
     return XTrain, YTrain, XTest, YTest
 
+
+def convert_to_one_hot(Y, C):
+    """
+    标签格式转换
+    :param Y:
+    :param C:
+    :return:
+    """
+    Y = np.eye(C)[Y.reshape(-1)].T
+    return Y
 
 
 def random_mini_batches(X, Y, mini_batch_size=64, seed=0):
@@ -87,94 +80,5 @@ def random_mini_batches(X, Y, mini_batch_size=64, seed=0):
     return mini_batches
 
 
-def convert_to_one_hot(Y, C):
-    Y = np.eye(C)[Y.reshape(-1)].T
-    return Y
-
-
-def forward_propagation_for_predict(X, parameters):
-    """
-    Implements the forward propagation for the model: LINEAR -> RELU -> LINEAR -> RELU -> LINEAR -> SOFTMAX
-
-    Arguments:
-    X -- input dataset placeholder, of shape (input size, number of examples)
-    parameters -- python dictionary containing your parameters "W1", "b1", "W2", "b2", "W3", "b3"
-                  the shapes are given in initialize_parameters
-    Returns:
-    Z3 -- the output of the last LINEAR unit
-    """
-
-    # Retrieve the parameters from the dictionary "parameters"
-    W1 = parameters['W1']
-    b1 = parameters['b1']
-    W2 = parameters['W2']
-    b2 = parameters['b2']
-    W3 = parameters['W3']
-    b3 = parameters['b3']
-    # Numpy Equivalents:
-    Z1 = tf.add(tf.matmul(W1, X), b1)  # Z1 = np.dot(W1, X) + b1
-    A1 = tf.nn.relu(Z1)  # A1 = relu(Z1)
-    Z2 = tf.add(tf.matmul(W2, A1), b2)  # Z2 = np.dot(W2, a1) + b2
-    A2 = tf.nn.relu(Z2)  # A2 = relu(Z2)
-    Z3 = tf.add(tf.matmul(W3, A2), b3)  # Z3 = np.dot(W3,Z2) + b3
-
-    return Z3
-
-
-def predict(X, parameters):
-    W1 = tf.convert_to_tensor(parameters["W1"])
-    b1 = tf.convert_to_tensor(parameters["b1"])
-    W2 = tf.convert_to_tensor(parameters["W2"])
-    b2 = tf.convert_to_tensor(parameters["b2"])
-    W3 = tf.convert_to_tensor(parameters["W3"])
-    b3 = tf.convert_to_tensor(parameters["b3"])
-
-    params = {"W1": W1,
-              "b1": b1,
-              "W2": W2,
-              "b2": b2,
-              "W3": W3,
-              "b3": b3}
-
-    x = tf.placeholder("float", [12288, 1])
-
-    z3 = forward_propagation_for_predict(x, params)
-    p = tf.argmax(z3)
-
-    sess = tf.Session()
-    prediction = sess.run(p, feed_dict={x: X})
-
-    return prediction
-
-# def predict(X, parameters):
-#
-#    W1 = tf.convert_to_tensor(parameters["W1"])
-#    b1 = tf.convert_to_tensor(parameters["b1"])
-#    W2 = tf.convert_to_tensor(parameters["W2"])
-#    b2 = tf.convert_to_tensor(parameters["b2"])
-##    W3 = tf.convert_to_tensor(parameters["W3"])
-##    b3 = tf.convert_to_tensor(parameters["b3"])
-#
-##    params = {"W1": W1,
-##              "b1": b1,
-##              "W2": W2,
-##              "b2": b2,
-##              "W3": W3,
-##              "b3": b3}
-#
-#    params = {"W1": W1,
-#              "b1": b1,
-#              "W2": W2,
-#              "b2": b2}
-#
-#    x = tf.placeholder("float", [12288, 1])
-#
-#    z3 = forward_propagation(x, params)
-#    p = tf.argmax(z3)
-#
-#    with tf.Session() as sess:
-#        prediction = sess.run(p, feed_dict = {x: X})
-#
-#    return prediction
 if __name__ == '__main__':
     load_dataset();

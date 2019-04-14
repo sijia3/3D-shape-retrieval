@@ -7,35 +7,28 @@ from matplotlib import cm
 import ReadOff
 
 
-def plotTri(planes, faces, filename):
+def plotTri(planes, faces, filename, size=64):
     """
     三维模型绘制
     :param planes: 点
     :param faces: 面片
     :param filename: 文件名
+    :param size: 坐标轴尺寸
     :return: void：空
     """
     # plot
-    x = (planes[:, 0]+1)*32
-    y = (planes[:, 1]+1)*32
-    z = (planes[:, 2]+1)*32
-    # x = planes[:, 0]
-    # y = planes[:, 1]
-    # z = planes[:, 2]
+    x = (planes[:, 0]+1)*size/2
+    y = (planes[:, 1]+1)*size/2
+    z = (planes[:, 2]+1)*size/2
     fig = plt.figure()
-
     ax = plt.axes(projection='3d')
-    # plt.subplot(2, 2, 1)
-    ax.set_ylim(0, 64)
-    ax.set_xlim(0, 64)
+    ax.set_ylim(0, size)
+    ax.set_xlim(0, size)
     ax.plot_trisurf(x, y, z, triangles=faces, cmap=cm.coolwarm, linewidth=0.2)
     ax.set_title(filename)
     plt.show()
 
 if __name__ == '__main__':
-    # vox = np.array([[1,1,1]])
-    # plotVoxel(vox=vox, boxSize=64)
-    #
-    file_dir = "./model/m0.off"
-    verts, faces = ReadOff.readOff(file_dir)
-    plotTri(verts, faces)
+    file_dir = "./model/table_0002.off"
+    verts, faces = ReadOff.readOff(file_dir)         # 模型预处理
+    plotTri(verts, faces,file_dir)

@@ -5,15 +5,16 @@ import os
 from matplotlib import cm
 import ReadOff
 import Tri2Vox
+import GetFeature as GF
+
 
 def plotVoxel(vox, boxSize):
     """
     绘制三维模型散点图
-    :param vox: 三维模型点
+    :param vox: 三维模型体素点集合
     :param boxSize: 模型大小
     :return:
     """
-
     # plot
     x = vox[:, 0]
     y = vox[:, 1]
@@ -22,27 +23,7 @@ def plotVoxel(vox, boxSize):
     ax.scatter3D(x, y, z, cmap='Greens')
     ax.set_ylim(0, boxSize)
     ax.set_xlim(0, boxSize)
-    # ax.set_Zlim(0, boxSize)
     plt.show()
-    # (row, col) = vox.shape;
-    # P = np.zeros((8, 3))
-    # face = np.zeros((4, 6))
-    # F = np.array([[1, 2, 3, 4], [1, 2, 6, 5], [1, 4, 8, 5], [3, 4, 8, 7], [3, 2, 6, 7], [5, 6, 7, 8]])
-    # M = np.array([[0, 0, 0], [-1, 0, 0], [-1, -1, 0], [0, -1, 0], [0, 0, -1], [-1, 0, -1], [-1, -1, -1], [0, -1, -1]])
-    # X = np.array([0, 0, 0])
-    # Y = np.array([0, 0, 0])
-    # Z = np.array([0, 0, 0])
-    # for i in range(0, row):
-    #     point = vox[i, :]
-    #     P = point + M
-    #     for j in range(0, 5):
-    #         index = F[j, :]
-    #         facePoint = P[index, :]
-    #         X = np.hstack((X, facePoint[:, 1]))
-    #         Y = np.hstack((Y, facePoint[:, 2]))
-    #         Z = np.hstack((Z, facePoint[:, 3]))
-    #
-    # return;
 
 
 def plot2DVoxel(vox, voxSize, name):
@@ -53,11 +34,6 @@ def plot2DVoxel(vox, voxSize, name):
     :param name: 模型名字
     :return:
     """
-    # for i in range(0,3):
-    #     index = i%2
-    #     plt.scatter(vox[:, index], vox[:, index+1])
-    #     plt.show()
-    # voxSize = 100
     plt.subplot(2, 2, 1)
     plt.xlim(0, voxSize)
     plt.ylim(0, voxSize)
@@ -65,7 +41,6 @@ def plot2DVoxel(vox, voxSize, name):
     plt.ylabel("Y")
     # plt.imshow()
     plt.scatter(vox[:, 0], vox[:, 1])
-
     #
     plt.subplot(2, 2, 2)
     plt.xlim(0, voxSize)
@@ -80,35 +55,31 @@ def plot2DVoxel(vox, voxSize, name):
     plt.xlabel("X")
     plt.ylabel("Z")
     plt.scatter(vox[:, 0], vox[:, 2])
-
-
-    # plt.scatter(vox[:, 0], vox[:, 1])
-    # plt.subplot(2, 2, 1)
-    plt.savefig('./pic/'+str(name)+'.png')
+    # plt.savefig('./pic/'+str(name)+'.png')
     plt.show()
 
 
-def plotHotPic(pic,voxSize,name="temp"):
-    # for i in range(0,3):
-    #     index = i%2
-    #     plt.scatter(vox[:, index], vox[:, index+1])
-    #     plt.show()
-    # voxSize = 100
+def plotHotPic(pic,voxSize,name=""):
+    """
+    绘制三维模型的三视图特征热力图
+    :param pic: 三视图的深度特征图像
+    :param voxSize: 模型尺寸
+    :param name: 模型名字
+    :return:
+    """
     plt.subplot(2, 2, 1)
     plt.xlim(0, voxSize)
     plt.ylim(0, voxSize)
     plt.xlabel("X")
     plt.ylabel("Y")
     plt.imshow(pic[0])
-    # plt.scatter(vox[:, 0], vox[:, 1])
 
-    #
     plt.subplot(2, 2, 2)
     plt.xlim(0, voxSize)
     plt.ylim(0, voxSize)
     plt.xlabel("Y")
     plt.ylabel("Z")
-    plt.imshow(pic[1])
+    plt.imshow(np.transpose(pics[1]))
 
     plt.subplot(2, 2, 3)
     plt.xlim(0, voxSize)
@@ -116,28 +87,30 @@ def plotHotPic(pic,voxSize,name="temp"):
     plt.xlabel("Z")
     plt.ylabel("X")
     plt.imshow(pic[2])
-
-    plt.savefig('./pic/'+str(name)+'.png')
+    # plt.savefig('./pic/'+str(name)+'.png')
     # plt.show()
 
+
 if __name__ == '__main__':
-    # vox = np.array([[1,1,1]])
-    # plotVoxel(vox=vox, boxSize=64)
-    #
-    file_dir = "./model/chair_0027.off"
+    file_dir = "./model/airplane_0007.off"
     verts, faces = ReadOff.readOffWithoutPca(file_dir)
-    vox = Tri2Vox.Tri2Vox(verts, faces, 32)
+    vox = Tri2Vox.Tri2Vox(verts, faces, 64)
     pics = []
     for j in range(3):
-        index = (j+1)%3
-        pic = np.zeros((64,64))
-        voxL = vox[:,[j,index]]
-        # voxL = np.unique(voxL, axis=0)
+        index = (j + 1) % 3
+        pic = np.zeros((64, 64))
+        voxL = vox[:, [j, index]]
         for i in range(voxL.shape[0]):
-            x = int(voxL[i][0])-1
-            y = int(voxL[i][1])-1
-            pic[x][y] += 1.0;
+            x = int(voxL[i][0])
+            y = int(voxL[i][1])
+            if x>63:
+                x = 63
+            if y>63:
+                y = 63
+            pic[x][y] += 1.0
         pics.append(pic)
+    # 绘制以上得到的三个方向的深度图像
+    plotHotPic(pics, 64)
 
-    plotVoxel(vox, 64)
-    plot2DVoxel(vox, 64, file_dir)
+    # plotVoxel(vox, 64)
+    # plot2DVoxel(vox, 64, file_dir)

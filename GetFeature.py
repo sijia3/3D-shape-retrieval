@@ -13,22 +13,6 @@ from GetLabels import getLabels
 import H5FileUtils as h5utils
 
 
-def readH5File(filename, key):       # HDF5的读取
-    """
-    读取H5文件
-    :param file: 文件名字
-    :param key: 键
-    :return: value: 该键对应的值
-    """
-    f = h5py.File(filename,'r')   #打开h5文件
-    # f.keys()                            #可以查看所有的主键
-    value = f[key][:]                    #取出主键为data的所有的键值
-    # b = f['labels'][:]
-    # print(a, b)
-    f.close()
-    return value
-
-
 def getFeature(file_dir):
     """
     获取该文件夹下所有目录下的模型特征
@@ -50,12 +34,8 @@ def getFeature(file_dir):
             print("文件名："+str(mid_files[j]))
             modelFile = modelDir + "\\" + str(mid_files[j])
             verts, faces = ReadOff.readOff(modelFile)
-            vox = Tri2Vox.Tri2Vox(verts, faces, 32)
-            # PlotVoxel.plot2DVoxel(vox, 64,files[i])
-            # PlotVoxel.plotVoxel(vox, 64)
-            # PlotTri.plotTri(verts,faces)
+            vox = Tri2Vox.Tri2Vox(verts, faces, 64)
             pics = getPics(vox, isInDepth=True)
-            # PlotVoxel.plotHotPic(pics, 64, files[i])
             allPics.append(pics)
             print("已完成第"+str(i+1)+"个文件夹的第"+str(j+1)+"个")
     allPics = np.array(allPics)
@@ -85,23 +65,25 @@ def getPics(vox, isInDepth = False):
             if y>63:
                 y = 63
             pic[x][y] += 1.0
-            # pic[x][y] = 0.0           # 浅层图像
         pics.append(pic)
     pics = np.array(pics).transpose(2, 1, 0)
     return pics
 
 
-def convert_to_one_hot(Y, C):    # 标签转换
-    Y = np.eye(C)[Y.reshape(-1)].T
-    return Y
 
 def getFea(dir, filename):
+    """
+    提取所有模型的特征和标记，写入到文件中
+    :param dir: 模型所在的总文件夹
+    :param filename: 特征所保存的文件名字
+    :return:
+    """
     vox = getFeature(dir)
     labels = getLabels(dir)
-    h5utils.writeH5(filename, vox, labels)
+    h5utils.writeDataAndLabels(filename, vox, labels)
 
 
 if __name__ == '__main__':
-    getFea("D:\\ModelNet10\\train", './logs/sijia3/3dModelTrainDBeta_8_2.h5')
-    getFea("D:\\ModelNet10\\test", './logs/sijia3/3dModelTestDBeta_8_2.h5')
+    # getFea("D:\\ModelNet10_PR\\train", './datasets/3dModelTrain_PR.h5')
+    getFea("D:\\ModelNet10_PR\\test", './datasets/3dModelTest_PR_other.h5')
 
