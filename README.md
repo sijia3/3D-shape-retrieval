@@ -1,7 +1,7 @@
 ## 3D-shape-retrieval(三维模型检索)
 
 ---
-   
+## 快速使用
 为方便读者有更直观的认识，已将本人训练好的模型特征数据上传，只需按照以下步骤进行解压   
 Step1: 将**logs**下的feaSets.rar中的文件解压出来，！！放到**logs**文件夹中！！   
 Step2: 将**session**/**vox**/下的session.rar中的文件解压出来，！！放到**session**/**vox**/文件夹中！！  
@@ -41,7 +41,7 @@ Step3: 打开VoxPicTrainPredict.py文件，执行main方法即可得到模型预
 ---
 
 
-### 实现步骤？(介绍基于三视图加权的卷积神经网络)
+### 实现步骤(介绍基于三视图加权的卷积神经网络)
 Step1:  读取模型并进行预处理(使用ReadOff文件)   
 Step2:  进行模型体素化(使用Tri2Vox文件)  
 Step3:  提取模型特征，并存放到特定位置。(使用GetFeature文件)  
