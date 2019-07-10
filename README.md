@@ -58,14 +58,18 @@ Step3: 打开VoxPicTrainPredict.py文件，执行main方法即可得到模型预
 Step1:  读取模型并进行预处理(使用ReadOff文件)   
 Step2:  进行模型体素化(使用Tri2Vox文件)  
 Step3:  提取模型特征，并存放到特定位置。(使用GetFeature文件)  
-Step4:  训练模型，保存较好的session。 (使用CNNVoxPicTrain文件)
+Step4:  训练模型，保存较好的session。 (使用CNNVoxPicTrain文件)   
 Step5:  预测模型。加载模型session，并可对未知模型进行预测。(使用VoxPicTrainPredict文件)      
 三维模型检索系统原型使用matlab开发，对接python。有兴趣可尝试一下。
 
-
-
 ---
-如有任何建议或疑问，可找我。
-联系方式：(QQ)979337189   
-(Wechat) qq-979337189
+### 使用本项目构建网络   
+ 如果需要训练自己的训练集，那需要根据以下步骤:   
+ Step1：定义模型的组织结构（文件结构尽量保持一致，代码可复用）。（贴图）   
+![模型组织结构](https://github.com/sijia3/3D-shape-retrieval/pic/dir.png)
+ Step2: 执行GetFeature.py文件的main方法，获取训练集和测试集的h5文件   
+ Step3: 执行CNNVoxPicTrain.py文件的mian方法，对Step2获取的h5文件传入，设置参数，执行main函数，进行深度学习。  
  
+ 对于用户模型组织结构不与本文相同，那需要重写getFeature()函数。
+ 自定义体素化方法，替换getFeature()函数的vox = Tri2Vox.Tri2Vox(verts, faces, 64)成个人实现的体素化方法即可。
+---
