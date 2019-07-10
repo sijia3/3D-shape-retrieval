@@ -65,8 +65,8 @@ Step5:  预测模型。加载模型session，并可对未知模型进行预测�
 ---
 ### 使用本项目构建网络   
  如果需要训练自己的训练集，那需要根据以下步骤:   
- Step1：定义模型的组织结构（文件结构尽量保持一致，代码可复用）。（贴图）   
-![模型组织结构](https://github.com/sijia3/3D-shape-retrieval/pic/dir.png)
+ Step1：定义模型的组织结构（文件结构尽量保持一致，代码可复用）。（贴图）     
+![模型组织结构](https://github.com/sijia3/3D-shape-retrieval/blob/master/pic/dir.png)
  Step2: 执行GetFeature.py文件的main方法，获取训练集和测试集的h5文件   
  Step3: 执行CNNVoxPicTrain.py文件的mian方法，对Step2获取的h5文件传入，设置参数，执行main函数，进行深度学习。  
  
