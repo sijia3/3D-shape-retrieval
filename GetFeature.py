@@ -35,35 +35,35 @@ def getFeature(file_dir):
             modelFile = modelDir + "\\" + str(mid_files[j])
             verts, faces = ReadOff.readOff(modelFile)
             vox = Tri2Vox.Tri2Vox(verts, faces, 64)
-            pics = getPics(vox, isInDepth=True)
+            pics = getPics(vox, isInDepth=True, voxSize=64)
             allPics.append(pics)
             print("已完成第"+str(i+1)+"个文件夹的第"+str(j+1)+"个")
     allPics = np.array(allPics)
     return allPics
 
 
-def getPics(vox, isInDepth = False):
+def getPics(vox, isInDepth = False, voxSize=64):
     """
     提取单个模型的三视图特征
-    :param vox: 模型的体素化点
+    :param vox: 模型的体素化点集合
     :param isInDepth: 是否提取深层图像
+    :param voxSize: 图像的尺寸
     :return: pics：模型的三视图特征
     """
     pics = []
     for j in range(3):
         index = (j + 1) % 3
-
-        pic = np.zeros((64, 64))
+        pic = np.zeros((voxSize, voxSize))
         voxL = vox[:, [j, index]]
         if not isInDepth:
             voxL = np.unique(voxL, axis=0)
         for i in range(voxL.shape[0]):
             x = int(voxL[i][0])
             y = int(voxL[i][1])
-            if x>63:
-                x = 63
-            if y>63:
-                y = 63
+            if x>voxSize-1:
+                x = voxSize-1
+            if y>voxSize-1:
+                y = voxSize-1
             pic[x][y] += 1.0
         pics.append(pic)
     pics = np.array(pics).transpose(2, 1, 0)

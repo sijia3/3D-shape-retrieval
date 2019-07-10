@@ -63,13 +63,16 @@ Step5:  预测模型。加载模型session，并可对未知模型进行预测�
 三维模型检索系统原型使用matlab开发，对接python。有兴趣可尝试一下。
 
 ---
-### 使用本项目构建网络   
- 如果需要训练自己的训练集，那需要根据以下步骤:   
- Step1：定义模型的组织结构（文件结构尽量保持一致，代码可复用）。（贴图）     
-![模型组织结构](https://github.com/sijia3/3D-shape-retrieval/blob/master/pic/dir.png)
- Step2: 执行GetFeature.py文件的main方法，获取训练集和测试集的h5文件   
- Step3: 执行CNNVoxPicTrain.py文件的mian方法，对Step2获取的h5文件传入，设置参数，执行main函数，进行深度学习。  
+### 使用本项目构建网络(可集成用户自定义方法)        
+ 如果需要训练自己的训练集，那需要根据以下步骤:    
+ Step1：定义模型的组织结构（文件结构尽量保持一致，代码可复用）。         
+![模型组织结构](https://github.com/sijia3/3D-shape-retrieval/blob/master/pic/dir.png)    
+ Step2: 执行GetFeature.py文件的main方法，获取训练集和测试集的h5文件。       
+ Step3: 执行CNNVoxPicTrain.py文件的mian方法，对Step2获取的h5文件传入，设置参数，执行main函数，进行深度学习。       
  
- 对于用户模型组织结构不与本文相同，那需要重写getFeature()函数。
- 自定义体素化方法，替换getFeature()函数的vox = Tri2Vox.Tri2Vox(verts, faces, 64)成个人实现的体素化方法即可。
+ PS: (1)对于用户定义的模型组织结构不与本文相同，那需要重写getFeature()函数。    
+     (2)模型的类型不是off文件，替换getFeature()函数的verts, faces = ReadOff.readOff(modelFile)即可，只需返回参数内容相同即可。  
+     (3)集成自定义体素化方法，替换getFeature()函数的vox = Tri2Vox.Tri2Vox(verts, faces, 64)成个人实现的体素化方法，只需返回参数内容相同即可。
+     (4)对于(2)(3)的参数内容可自己在相对应的函数进行测试。不懂可找我哈哈。  
+
 ---
